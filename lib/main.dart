@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:recime_flutter/profile_page.dart';
 import 'package:recime_flutter/register_page.dart';
 import 'main_page.dart';
 import 'welcome_page.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/register': (_) => RegisterPage(),
         '/home': (_) => HomePage(),
         '/explore': (_) => ExplorePage(),
+        '/profile': (_) => ProfilePage(),
         '/settings': (_) => SettingsPage(),
       },
       debugShowCheckedModeBanner: false,

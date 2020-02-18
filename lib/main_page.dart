@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'explore_page.dart';
-import 'settings_page.dart';
+import 'profile_page.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key key, title: "Home"}) : super(key: key);
@@ -29,7 +29,9 @@ class _MainPageState extends State<MainPage> {
                 title: Text("Explore"),
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline), title: Text("Profile"))
+                icon: Icon(Icons.person_outline),
+                title: Text("Profile"),
+              )
             ],
           ),
           tabBuilder: (BuildContext context, int index) {
@@ -43,7 +45,7 @@ class _MainPageState extends State<MainPage> {
                     return ExplorePage();
                     break;
                   case 2:
-                    return SettingsPage();
+                    return ProfilePage();
                     break;
                   default:
                     return Text('Error: CupertinoTabView in main.dart');

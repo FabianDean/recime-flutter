@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, title: "Home"}) : super(key: key);
@@ -22,7 +23,46 @@ class _HomePageState extends State<HomePage> {
         onWillPop: () async => false,
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-              automaticallyImplyLeading: false, middle: Text("Home")),
+            automaticallyImplyLeading: false,
+            leading: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: CupertinoColors.black,
+                ),
+                children: <TextSpan>[
+                  TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "Hello, ",
+                      ),
+                      TextSpan(
+                        text: "User",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                    style: TextStyle(
+                      fontSize: 24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            trailing: CupertinoButton(
+              padding: EdgeInsets.all(0),
+              child: CircleAvatar(
+                backgroundColor: CupertinoColors.systemGrey,
+                child: Icon(
+                  Icons.person,
+                  color: CupertinoColors.black,
+                  size: 30,
+                ),
+              ),
+              onPressed: () {},
+            ),
+            backgroundColor: Color(0xfff79c4f),
+          ),
           child: SafeArea(
             child: Container(
               padding: EdgeInsets.all(10),
