@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import './register_page.dart';
 import './widgets/bezierContainer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -17,13 +17,21 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
+  bool _saving = false;
 
   Future<void> _signInAnonymously() async {
+    setState(() {
+      _saving = true;
+    });
     try {
       await FirebaseAuth.instance.signInAnonymously();
+      Navigator.pop(context);
     } catch (e) {
       print(e); // TODO: show dialog with error
     }
+    setState(() {
+      _saving = false;
+    });
   }
 
   Widget _backButton() {
@@ -127,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
             height: 25,
             child: Text(
-              'Login',
+              'Login Anonymously',
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
           ),
@@ -280,9 +288,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async => true,
-        child: Scaffold(
-          body: Stack(
+      onWillPop: () async => true,
+      child: Scaffold(
+        body: ModalProgressHUD(
+          child: Stack(
             children: <Widget>[
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -332,6 +341,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: BezierContainer())
             ],
           ),
-        ));
+          inAsyncCall: _saving,
+        ),
+      ),
+    );
   }
 }

@@ -14,47 +14,43 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Text("Test"),
-      ),
-    );
-    // return WillPopScope(
-    //     onWillPop: () async => false,
-    //     child: CupertinoTabScaffold(
-    //       tabBar: CupertinoTabBar(
-    //         items: [
-    //           BottomNavigationBarItem(
-    //             icon: Icon(Icons.home),
-    //             title: Text("Home"),
-    //           ),
-    //           BottomNavigationBarItem(
-    //             icon: Icon(Icons.search),
-    //             title: Text("Explore"),
-    //           ),
-    //           BottomNavigationBarItem(
-    //               icon: Icon(Icons.settings), title: Text("Settings"))
-    //         ],
-    //       ),
-    //       tabBuilder: (BuildContext context, int index) {
-    //         return CupertinoTabView(
-    //           builder: (context) {
-    //             switch (index) {
-    //               case 0:
-    //                 return HomePage();
-    //                 break;
-    //               case 1:
-    //                 return ExplorePage();
-    //                 break;
-    //               case 2:
-    //                 return SettingsPage();
-    //                 break;
-    //               default:
-    //                 return Text('Error: CupertinoTabView in main.dart');
-    //             }
-    //           },
-    //         );
-    //       },
-    //     ));
+    return WillPopScope(
+        onWillPop: () async => false,
+        child: CupertinoTabScaffold(
+          tabBar: CupertinoTabBar(
+            activeColor: Color(0xfff79c4f),
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                title: Text("Home"),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.search),
+                title: Text("Explore"),
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person_outline), title: Text("Profile"))
+            ],
+          ),
+          tabBuilder: (BuildContext context, int index) {
+            return CupertinoTabView(
+              builder: (context) {
+                switch (index) {
+                  case 0:
+                    return HomePage();
+                    break;
+                  case 1:
+                    return ExplorePage();
+                    break;
+                  case 2:
+                    return SettingsPage();
+                    break;
+                  default:
+                    return Text('Error: CupertinoTabView in main.dart');
+                }
+              },
+            );
+          },
+        ));
   }
 }
