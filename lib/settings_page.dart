@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'welcome_page.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, title: "Settings"}) : super(key: key);
@@ -12,6 +12,14 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   int _counter = 0;
+
+  Future<void> _signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      print(e); // TODO: show dialog with error
+    }
+  }
 
   void _increment() {
     setState(() {
@@ -63,8 +71,9 @@ class _SettingsPageState extends State<SettingsPage> {
                               isDestructiveAction: true,
                               child: Text("Logout"),
                               onPressed: () {
-                                Navigator.pushReplacementNamed(
-                                    context, '/welcome');
+                                _signOut();
+                                // Navigator.pushReplacementNamed(
+                                //     context, '/welcome');
                                 // add user logout functionality
                               },
                             ),

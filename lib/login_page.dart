@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './widgets/auth_service.dart';
 import './register_page.dart';
 import './widgets/bezierContainer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -17,6 +17,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
+
+  Future<void> _signInAnonymously() async {
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+    } catch (e) {
+      print(e); // TODO: show dialog with error
+    }
+  }
 
   Widget _backButton() {
     return InkWell(
@@ -97,11 +105,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _submitButton() {
     return CupertinoButton(
         onPressed: () {
-          Provider.of<AuthService>(context)
-              .loginUser(_emailContr.text, _passwordContr.text);
-
-          // Navigator.pushReplacement(
-          //     context, CupertinoPageRoute(builder: (context) => MainPage()));
+          _signInAnonymously();
         },
         child: Container(
           width: MediaQuery.of(context).size.width,
