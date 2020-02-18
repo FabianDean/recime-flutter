@@ -18,6 +18,7 @@ class _MainPageState extends State<MainPage> {
         onWillPop: () async => false,
         child: CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
+            activeColor: Color(0xfff79c4f),
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
@@ -28,7 +29,7 @@ class _MainPageState extends State<MainPage> {
                 title: Text("Explore"),
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.settings), title: Text("Settings"))
+                  icon: Icon(Icons.person_outline), title: Text("Profile"))
             ],
           ),
           tabBuilder: (BuildContext context, int index) {

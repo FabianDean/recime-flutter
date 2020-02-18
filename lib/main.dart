@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
 import 'package:recime_flutter/register_page.dart';
 import 'main_page.dart';
 import 'welcome_page.dart';
@@ -9,16 +8,9 @@ import 'register_page.dart';
 import 'home_page.dart';
 import 'explore_page.dart';
 import 'settings_page.dart';
-import './widgets/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() => runApp(
-      ChangeNotifierProvider<AuthService>(
-        child: MyApp(),
-        builder: (BuildContext context) {
-          return AuthService();
-        },
-      ),
-    );
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -26,19 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoApp(
       title: 'ReciMe',
-      home: FutureBuilder(
-        // get the Provider, and call the getUser method
-        future: Provider.of<AuthService>(context).getUser(),
-        // wait for the future to resolve and render the appropriate
-        // widget for HomePage or LoginPage
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return snapshot.hasData ? MainPage() : WelcomePage();
-          } else {
-            return Container(color: Colors.white);
-          }
-        },
-      ),
+      home: LandingPage(),
       routes: {
         '/main': (_) => MainPage(),
         '/welcome': (_) => WelcomePage(),
@@ -54,6 +34,30 @@ class MyApp extends StatelessWidget {
         DefaultCupertinoLocalizations.delegate,
         DefaultWidgetsLocalizations.delegate,
       ],
+    );
+  }
+}
+
+class LandingPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<FirebaseUser>(
+      stream: FirebaseAuth.instance.onAuthStateChanged,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          FirebaseUser user = snapshot.data;
+          if (user == null) {
+            return WelcomePage();
+          }
+          return MainPage();
+        } else {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
     );
   }
 }

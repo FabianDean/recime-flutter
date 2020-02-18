@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import './widgets/auth_service.dart';
 import './register_page.dart';
 import './widgets/bezierContainer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -17,6 +17,22 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
+  bool _saving = false;
+
+  Future<void> _signInAnonymously() async {
+    setState(() {
+      _saving = true;
+    });
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+      Navigator.pop(context);
+    } catch (e) {
+      print(e); // TODO: show dialog with error
+    }
+    setState(() {
+      _saving = false;
+    });
+  }
 
   Widget _backButton() {
     return InkWell(
@@ -97,11 +113,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _submitButton() {
     return CupertinoButton(
         onPressed: () {
-          Provider.of<AuthService>(context)
-              .loginUser(_emailContr.text, _passwordContr.text);
-
-          // Navigator.pushReplacement(
-          //     context, CupertinoPageRoute(builder: (context) => MainPage()));
+          _signInAnonymously();
         },
         child: Container(
           width: MediaQuery.of(context).size.width,
@@ -123,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
             height: 25,
             child: Text(
-              'Login',
+              'Login Anonymously',
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
           ),
@@ -276,9 +288,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async => true,
-        child: Scaffold(
-          body: Stack(
+      onWillPop: () async => true,
+      child: Scaffold(
+        body: ModalProgressHUD(
+          child: Stack(
             children: <Widget>[
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -328,6 +341,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: BezierContainer())
             ],
           ),
-        ));
+          inAsyncCall: _saving,
+        ),
+      ),
+    );
   }
 }
