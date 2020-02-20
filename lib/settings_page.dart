@@ -195,14 +195,13 @@ class SettingsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RichText(
-                text: TextSpan(
+              Text.rich(
+                TextSpan(
                     text: "Account",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 32,
-                    ),
-                 ),
+                    )),
               ),
               _accountSettings(context),
               SizedBox(height: 20),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, title: "Home"}) : super(key: key);
@@ -10,11 +11,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _counter = 0;
+  String _username = null;
+  FirebaseUser _user = null;
 
   void _increment() {
     setState(() {
       _counter++;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.currentUser().then((user) {
+      //_username = user.displayName;
+      _user = user;
+      _username = user.uid.substring(0, 11);
+      print(_username);
+    });
+  }
+
+  String _getUsername() {
+    print(_username);
+    return _username;
   }
 
   @override
@@ -36,14 +55,14 @@ class _HomePageState extends State<HomePage> {
                         text: "Hello, ",
                       ),
                       TextSpan(
-                        text: "User",
+                        text: _getUsername(),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 14,
                     ),
                   ),
                 ],
@@ -51,13 +70,10 @@ class _HomePageState extends State<HomePage> {
             ),
             trailing: CupertinoButton(
               padding: EdgeInsets.all(0),
-              child: CircleAvatar(
-                backgroundColor: CupertinoColors.systemGrey,
-                child: Icon(
-                  Icons.person,
-                  color: CupertinoColors.black,
-                  size: 30,
-                ),
+              child: Icon(
+                CupertinoIcons.photo_camera,
+                color: CupertinoColors.black,
+                size: 40,
               ),
               onPressed: () {},
             ),

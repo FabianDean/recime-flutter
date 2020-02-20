@@ -22,15 +22,13 @@ class _MainPageState extends State<MainPage> {
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
-                title: Text("Home"),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.search),
-                title: Text("Explore"),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),
-                title: Text("Profile"),
+                activeIcon: Icon(Icons.person),
               )
             ],
           ),
