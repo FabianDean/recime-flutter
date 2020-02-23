@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:recime_flutter/recipe_page.dart';
 import 'home_page.dart';
 import 'explore_page.dart';
 import 'profile_page.dart';
+
+import 'recipe_page.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key key, title: "Home"}) : super(key: key);
@@ -37,7 +40,7 @@ class _MainPageState extends State<MainPage> {
               builder: (context) {
                 switch (index) {
                   case 0:
-                    return HomePage();
+                    return HomePage(); //HomePage();
                     break;
                   case 1:
                     return ExplorePage();

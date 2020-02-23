@@ -34,7 +34,9 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               onPressed: () {
                 Navigator.of(context).push(
-                  CupertinoPageRoute(builder: (context) => SettingsPage()),
+                  CupertinoPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
                 );
               },
             ),
