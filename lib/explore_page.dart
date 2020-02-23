@@ -178,7 +178,9 @@ class _ExplorePageState extends State<ExplorePage> {
         );
       },
       separatorBuilder: (context, index) {
-        return Divider();
+        return Divider(
+          color: CupertinoColors.systemGrey2,
+        );
       },
     );
   }
@@ -445,14 +447,22 @@ class _ExplorePageState extends State<ExplorePage> {
                                     _ingredients.length > 0
                                         ? Align(
                                             alignment: Alignment.centerRight,
-                                            child: Text("Clear"),
+                                            child: CupertinoButton(
+                                              padding: EdgeInsets.all(0),
+                                              child: Text("clear"),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _ingredients.clear();
+                                                });
+                                              },
+                                            ),
                                           )
                                         : SizedBox(),
                                   ],
                                 ),
                               ),
                               Divider(
-                                color: CupertinoColors.systemGrey3,
+                                color: CupertinoColors.systemGrey,
                                 thickness: 1,
                               ),
                               Expanded(
