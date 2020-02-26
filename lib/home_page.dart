@@ -81,7 +81,7 @@ class _HomePageState extends State<HomePage> {
           height: 5,
         ),
         CarouselSlider(
-          viewportFraction: 0.7,
+          viewportFraction: 0.8,
           enlargeCenterPage: true,
           onPageChanged: (index) {
             setState(() {
@@ -221,7 +221,7 @@ class _HomePageState extends State<HomePage> {
           height: 5,
         ),
         CarouselSlider(
-          viewportFraction: 0.7,
+          viewportFraction: 0.8,
           enlargeCenterPage: true,
           onPageChanged: (index) {
             setState(() {
@@ -245,7 +245,57 @@ class _HomePageState extends State<HomePage> {
                       fit: BoxFit.fill,
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent loadingProgress) {
-                        if (loadingProgress == null) return child;
+                        if (loadingProgress == null)
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              child,
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                    top: 10,
+                                    bottom: 10,
+                                    left: 10,
+                                    right: 10,
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    color: CupertinoColors
+                                        .extraLightBackgroundGray,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Text(
+                                          "Gluten-free Vegan Spaghetti Squash"
+                                                      .length >
+                                                  20
+                                              ? "Gluten-free Vegan Spaghetti Squash"
+                                                      .substring(0, 20) +
+                                                  "..."
+                                              : "Gluten-free Vegan Spaghetti Squash",
+                                          overflow: TextOverflow.fade,
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            color: CupertinoColors.black,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        CupertinoIcons.heart,
+                                        color: CupertinoColors.systemRed,
+                                        size: 30,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
                         return Center(
                           child: CircularProgressIndicator(
                             valueColor: new AlwaysStoppedAnimation<Color>(
@@ -311,7 +361,7 @@ class _HomePageState extends State<HomePage> {
           height: 5,
         ),
         CarouselSlider(
-          viewportFraction: 0.7,
+          viewportFraction: 0.8,
           enlargeCenterPage: true,
           onPageChanged: (index) {
             setState(() {
@@ -335,7 +385,57 @@ class _HomePageState extends State<HomePage> {
                       fit: BoxFit.fill,
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent loadingProgress) {
-                        if (loadingProgress == null) return child;
+                        if (loadingProgress == null)
+                          return Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              child,
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                    top: 10,
+                                    bottom: 10,
+                                    left: 10,
+                                    right: 10,
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    color: CupertinoColors
+                                        .extraLightBackgroundGray,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Text(
+                                          "Gluten-free Vegan Spaghetti Squash"
+                                                      .length >
+                                                  20
+                                              ? "Gluten-free Vegan Spaghetti Squash"
+                                                      .substring(0, 20) +
+                                                  "..."
+                                              : "Gluten-free Vegan Spaghetti Squash",
+                                          overflow: TextOverflow.fade,
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                            color: CupertinoColors.black,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        CupertinoIcons.heart,
+                                        color: CupertinoColors.systemRed,
+                                        size: 30,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
                         return Center(
                           child: CircularProgressIndicator(
                             valueColor: new AlwaysStoppedAnimation<Color>(
