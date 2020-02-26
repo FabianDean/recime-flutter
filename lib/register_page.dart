@@ -186,11 +186,11 @@ class _RegisterPageState extends State<RegisterPage> {
             alignment: Alignment.bottomCenter,
             child: _loginAccountLabel(),
           ),
-          Positioned(top: 40, left: 0, child: _backButton()),
           Positioned(
-              top: -MediaQuery.of(context).size.height * .15,
-              right: -MediaQuery.of(context).size.width * .4,
-              child: BezierContainer())
+            top: 40,
+            left: 0,
+            child: _backButton(),
+          ),
         ],
       ),
     );

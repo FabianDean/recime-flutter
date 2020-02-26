@@ -245,8 +245,8 @@ class _ExplorePageState extends State<ExplorePage> {
               title: Row(
                 children: <Widget>[
                   Container(
-                    height: 60,
-                    width: 60,
+                    height: 80,
+                    width: 80,
                     decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(10),
