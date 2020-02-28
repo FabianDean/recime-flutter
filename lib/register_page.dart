@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'login_page.dart';
-import 'home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key, this.title}) : super(key: key);
@@ -26,7 +26,11 @@ class _RegisterPageState extends State<RegisterPage> {
       _saving = true;
     });
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final firebaseAuth = Provider.of<FirebaseAuth>(
+        context,
+        listen: false,
+      );
+      await firebaseAuth.createUserWithEmailAndPassword(
         email: _emailContr.text,
         password: _passwordContr.text,
       );
@@ -100,6 +104,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           TextField(
               controller: _emailContr,
+              keyboardType: TextInputType.emailAddress,
               obscureText: false,
               decoration: InputDecoration(
                   border: InputBorder.none,
@@ -228,49 +233,56 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ModalProgressHUD(
-        child: Stack(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    flex: 3,
-                    child: SizedBox(),
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: ModalProgressHUD(
+          child: SafeArea(
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 3,
+                        child: SizedBox(),
+                      ),
+                      Icon(Icons.restaurant_menu,
+                          size: 50, color: Color(0xfff79c4f)),
+                      _title(),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      _emailPasswordWidget(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      _submitButton(),
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(),
+                      )
+                    ],
                   ),
-                  Icon(Icons.restaurant_menu,
-                      size: 50, color: Color(0xfff79c4f)),
-                  _title(),
-                  SizedBox(
-                    height: 50,
-                  ),
-                  _emailPasswordWidget(),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _submitButton(),
-                  Expanded(
-                    flex: 2,
-                    child: SizedBox(),
-                  )
-                ],
-              ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: _loginAccountLabel(),
+                ),
+                Positioned(
+                  top: 10,
+                  left: 0,
+                  child: _backButton(),
+                ),
+              ],
             ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: _loginAccountLabel(),
-            ),
-            Positioned(
-              top: 40,
-              left: 0,
-              child: _backButton(),
-            ),
-          ],
+          ),
+          inAsyncCall: _saving,
         ),
-        inAsyncCall: _saving,
       ),
     );
   }

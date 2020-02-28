@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, title: "Home"}) : super(key: key);
@@ -13,8 +14,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   RefreshController _refreshController = RefreshController();
-  String _username = null;
-  FirebaseUser _user = null;
+  String _username;
+  FirebaseUser _user;
   int _currentTrending = 0;
   int _currentYourRecipes = 0;
   int _currentRecents = 0;
@@ -29,14 +30,22 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.currentUser().then((user) {
-      //_username = user.displayName;
-      setState(() {
-        _user = user;
-        _username = user.uid.substring(0, 11);
+    try {
+      final firebaseAuth = Provider.of<FirebaseAuth>(
+        context,
+        listen: false,
+      );
+      firebaseAuth.currentUser().then((user) {
+        //_username = user.displayName;
+        setState(() {
+          _user = user;
+          _username = user.uid.substring(0, 15);
+        });
+        print(_username);
       });
-      print(_username);
-    });
+    } catch (error) {
+      print(error);
+    }
   }
 
   String _getUsername() {

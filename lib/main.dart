@@ -10,6 +10,7 @@ import 'home_page.dart';
 import 'explore_page.dart';
 import 'settings_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,25 +18,28 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return CupertinoApp(
-      title: 'ReciMe',
-      home: LandingPage(),
-      routes: {
-        '/main': (_) => MainPage(),
-        '/welcome': (_) => WelcomePage(),
-        '/login': (_) => LoginPage(),
-        '/register': (_) => RegisterPage(),
-        '/home': (_) => HomePage(),
-        '/explore': (_) => ExplorePage(),
-        '/profile': (_) => ProfilePage(),
-        '/settings': (_) => SettingsPage(),
-      },
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: [
-        DefaultMaterialLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-        DefaultWidgetsLocalizations.delegate,
-      ],
+    return Provider<FirebaseAuth>(
+      create: (_) => FirebaseAuth.instance,
+      child: CupertinoApp(
+        title: 'ReciMe',
+        home: LandingPage(),
+        routes: {
+          '/main': (_) => MainPage(),
+          '/welcome': (_) => WelcomePage(),
+          '/login': (_) => LoginPage(),
+          '/register': (_) => RegisterPage(),
+          '/home': (_) => HomePage(),
+          '/explore': (_) => ExplorePage(),
+          '/profile': (_) => ProfilePage(),
+          '/settings': (_) => SettingsPage(),
+        },
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: [
+          DefaultMaterialLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
+        ],
+      ),
     );
   }
 }
@@ -43,8 +47,9 @@ class MyApp extends StatelessWidget {
 class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final firebaseAuth = Provider.of<FirebaseAuth>(context);
     return StreamBuilder<FirebaseUser>(
-      stream: FirebaseAuth.instance.onAuthStateChanged,
+      stream: firebaseAuth.onAuthStateChanged,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           FirebaseUser user = snapshot.data;

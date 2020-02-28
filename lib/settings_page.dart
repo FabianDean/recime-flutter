@@ -1,13 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, title: "Settings"}) : super(key: key);
 
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
   Future<void> _signOut() async {
     try {
-      await FirebaseAuth.instance.signOut();
+      final firebaseAuth = Provider.of<FirebaseAuth>(
+        context,
+        listen: false,
+      );
+      await firebaseAuth.signOut();
     } catch (e) {
       print(e); // TODO: show dialog with error
     }
@@ -133,9 +143,6 @@ class SettingsPage extends StatelessWidget {
                             Navigator.of(context, rootNavigator: true)
                                 .pop("Cancel");
                             _signOut();
-                            // Navigator.pushReplacementNamed(
-                            //     context, '/welcome');
-                            // add user logout functionality
                           },
                         ),
                         CupertinoDialogAction(

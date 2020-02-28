@@ -40,7 +40,7 @@ class _MainPageState extends State<MainPage> {
               builder: (context) {
                 switch (index) {
                   case 0:
-                    return HomePage(); //HomePage();
+                    return ProfilePage(); //HomePage();
                     break;
                   case 1:
                     return ExplorePage();
