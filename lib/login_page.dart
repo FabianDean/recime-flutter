@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import './register_page.dart';
-import './widgets/bezierContainer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
@@ -19,12 +19,19 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _passwordContr = TextEditingController();
   bool _saving = false;
 
-  Future<void> _signInAnonymously() async {
+  Future<void> _signInEmailAndPassword() async {
     setState(() {
       _saving = true;
     });
     try {
-      await FirebaseAuth.instance.signInAnonymously();
+      final firebaseAuth = Provider.of<FirebaseAuth>(
+        context,
+        listen: false,
+      );
+      await firebaseAuth.signInWithEmailAndPassword(
+        email: _emailContr.text,
+        password: _passwordContr.text,
+      );
       Navigator.pop(context);
     } catch (e) {
       print(e); // TODO: show dialog with error
@@ -73,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           TextField(
             controller: _emailContr,
+            keyboardType: TextInputType.emailAddress,
             obscureText: false,
             decoration: InputDecoration(
               border: InputBorder.none,
@@ -113,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _submitButton() {
     return CupertinoButton(
         onPressed: () {
-          _signInAnonymously();
+          _signInEmailAndPassword();
         },
         child: Container(
           width: MediaQuery.of(context).size.width,
@@ -135,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
             height: 25,
             child: Text(
-              'Login Anonymously',
+              'Login',
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
           ),
@@ -144,7 +152,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _divider() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: <Widget>[
           SizedBox(
@@ -177,6 +184,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _facebookButton() {
     return CupertinoButton(
+        padding: EdgeInsets.all(0),
         onPressed: () {},
         child: Container(
           height: 55,
@@ -213,7 +221,7 @@ class _LoginPageState extends State<LoginPage> {
                         topRight: Radius.circular(5)),
                   ),
                   alignment: Alignment.center,
-                  child: Text('Log in with Facebook',
+                  child: Text('Login with Facebook',
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -290,58 +298,68 @@ class _LoginPageState extends State<LoginPage> {
     return WillPopScope(
       onWillPop: () async => true,
       child: Scaffold(
-        body: ModalProgressHUD(
-          child: Stack(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          },
+          child: ModalProgressHUD(
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Stack(
                   children: <Widget>[
-                    Expanded(
-                      flex: 3,
-                      child: SizedBox(),
-                    ),
-                    Icon(Icons.restaurant_menu,
-                        size: 50, color: Color(0xfff79c4f)),
-                    _title(),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    _emailPasswordWidget(),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _submitButton(),
                     Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      alignment: Alignment.center,
-                      child: Text('Forgot Password?',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500)),
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                            flex: 3,
+                            child: SizedBox(),
+                          ),
+                          Icon(Icons.restaurant_menu,
+                              size: 50, color: Color(0xfff79c4f)),
+                          _title(),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          _emailPasswordWidget(),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          _submitButton(),
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            alignment: Alignment.center,
+                            child: Text('Forgot Password?',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w500)),
+                          ),
+                          _divider(),
+                          _facebookButton(),
+                          Expanded(
+                            flex: 2,
+                            child: SizedBox(),
+                          ),
+                        ],
+                      ),
                     ),
-                    _divider(),
-                    _facebookButton(),
-                    Expanded(
-                      flex: 2,
-                      child: SizedBox(),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: _createAccountLabel(),
+                    ),
+                    Positioned(
+                      top: 5,
+                      left: 0,
+                      child: _backButton(),
                     ),
                   ],
                 ),
               ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: _createAccountLabel(),
-              ),
-              Positioned(top: 40, left: 0, child: _backButton()),
-              Positioned(
-                  top: -MediaQuery.of(context).size.height * .15,
-                  right: -MediaQuery.of(context).size.width * .4,
-                  child: BezierContainer())
-            ],
+            ),
+            inAsyncCall: _saving,
           ),
-          inAsyncCall: _saving,
         ),
       ),
     );

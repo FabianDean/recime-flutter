@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "924221038511",
+    "firebase_url": "https://recime-80822.firebaseio.com",
+    "project_id": "recime-80822",
+    "storage_bucket": "recime-80822.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924221038511:android:51006a3f8d8f3edd59195a",
+        "android_client_info": {
+          "package_name": "dev.fabiandean.recime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "924221038511-n4p82ar4sgih8hdj7vlu8hshegmlp0nt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmsv7KFfmDBgfYfcEe9Shj_9xpuU-efTk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "924221038511-n4p82ar4sgih8hdj7vlu8hshegmlp0nt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "924221038511-a3c15jpbo10gsb13m8ugbp73idrssvuj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dev.fabiandean.recime"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

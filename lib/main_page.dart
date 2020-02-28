@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:recime_flutter/recipe_page.dart';
 import 'home_page.dart';
 import 'explore_page.dart';
-import 'settings_page.dart';
+import 'profile_page.dart';
+
+import 'recipe_page.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key key, title: "Home"}) : super(key: key);
@@ -18,18 +21,19 @@ class _MainPageState extends State<MainPage> {
         onWillPop: () async => false,
         child: CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
+            backgroundColor: Colors.transparent,
             activeColor: Color(0xfff79c4f),
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
-                title: Text("Home"),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.search),
-                title: Text("Explore"),
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline), title: Text("Profile"))
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+              )
             ],
           ),
           tabBuilder: (BuildContext context, int index) {
@@ -37,13 +41,13 @@ class _MainPageState extends State<MainPage> {
               builder: (context) {
                 switch (index) {
                   case 0:
-                    return HomePage();
+                    return ProfilePage(); //HomePage();
                     break;
                   case 1:
                     return ExplorePage();
                     break;
                   case 2:
-                    return SettingsPage();
+                    return ProfilePage();
                     break;
                   default:
                     return Text('Error: CupertinoTabView in main.dart');
