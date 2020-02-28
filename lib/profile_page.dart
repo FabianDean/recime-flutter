@@ -64,82 +64,119 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _summarySection(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+          ),
+          child: Row(
             children: <Widget>[
-              Icon(
-                Icons.photo_library,
-                color: CupertinoColors.inactiveGray,
-                size: 25,
+              CircleAvatar(
+                radius: 40,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                ),
               ),
               SizedBox(
-                width: 5,
+                width: 20,
               ),
-              RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: "13",
-                      style: TextStyle(
-                        color: _mainColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                      ),
-                    ),
-                    TextSpan(
-                      text: " posts".toUpperCase(),
-                      style: TextStyle(
-                        color: CupertinoColors.inactiveGray,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+              Text(
+                "Fabian Dean",
+                style: TextStyle(
+                  color: CupertinoColors.black,
+                  fontSize: 36,
                 ),
               ),
             ],
           ),
-          Row(
+        ),
+        SizedBox(
+          height: 25,
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Icon(
-                CupertinoIcons.heart_solid,
-                color: CupertinoColors.inactiveGray,
-                size: 30,
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: "26",
-                      style: TextStyle(
-                        color: _mainColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                      ),
+              Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.photo_library,
+                    color: CupertinoColors.inactiveGray,
+                    size: 25,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: "13",
+                          style: TextStyle(
+                            color: _mainColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                        TextSpan(
+                          text: " posts".toUpperCase(),
+                          style: TextStyle(
+                            color: CupertinoColors.inactiveGray,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
-                    TextSpan(
-                      text: " likes".toUpperCase(),
-                      style: TextStyle(
-                        color: CupertinoColors.inactiveGray,
-                        fontSize: 16,
-                      ),
+                  ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Icon(
+                    CupertinoIcons.heart_solid,
+                    color: CupertinoColors.inactiveGray,
+                    size: 30,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: "26",
+                          style: TextStyle(
+                            color: _mainColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                        TextSpan(
+                          text: " likes".toUpperCase(),
+                          style: TextStyle(
+                            color: CupertinoColors.inactiveGray,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -344,87 +381,81 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      child: CustomScrollView(
-        slivers: <Widget>[
-          CupertinoSliverNavigationBar(
-            backgroundColor: _mainColor,
-            largeTitle: Text(
-              _username == null ? "" : _getUsername(),
-              style: TextStyle(
-                color: CupertinoColors.white,
-              ),
-            ),
-            trailing: CupertinoButton(
-              padding: EdgeInsets.all(0),
-              child: Icon(
-                CupertinoIcons.settings,
-                color: CupertinoColors.black,
-                size: 30,
-              ),
-              onPressed: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => SettingsPage(),
-                  ),
-                );
-              },
-            ),
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: _mainColor,
+        middle: Text(
+          _username == null ? "" : _getUsername(),
+          style: TextStyle(
+            color: CupertinoColors.white,
           ),
-          SliverFillRemaining(
-            child: SafeArea(
-              top: false,
-              child: ListView(
-                padding: EdgeInsets.all(0),
-                shrinkWrap: true,
-                children: <Widget>[
-                  SizedBox(
-                    height: 30,
-                  ),
-                  _summarySection(context),
-                  _postsSection(context),
-                  SizedBox(height: 10),
-                  _likesSection(context),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Icon(
-                        Icons.calendar_today,
-                        color: CupertinoColors.inactiveGray,
+        ),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.all(0),
+          child: Icon(
+            CupertinoIcons.settings,
+            color: CupertinoColors.black,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (context) => SettingsPage(),
+              ),
+            );
+          },
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: ListView(
+          padding: EdgeInsets.all(0),
+          shrinkWrap: true,
+          children: <Widget>[
+            SizedBox(
+              height: 30,
+            ),
+            _summarySection(context),
+            _postsSection(context),
+            SizedBox(height: 10),
+            _likesSection(context),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.calendar_today,
+                  color: CupertinoColors.inactiveGray,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                RichText(
+                  text: TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "Joined ",
+                        style: TextStyle(
+                          color: CupertinoColors.inactiveGray,
+                        ),
                       ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: "Joined ",
-                              style: TextStyle(
-                                color: CupertinoColors.inactiveGray,
-                              ),
-                            ),
-                            TextSpan(
-                              text: "August 2011",
-                              style: TextStyle(
-                                color: _mainColor,
-                              ),
-                            ),
-                          ],
+                      TextSpan(
+                        text: "August 2011",
+                        style: TextStyle(
+                          color: _mainColor,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ],
+            SizedBox(
+              height: 15,
+            ),
+          ],
+        ),
       ),
     );
   }
