@@ -66,7 +66,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _summarySection(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        top: 25,
         left: 20,
         right: 20,
       ),
@@ -306,6 +305,38 @@ class _ProfilePageState extends State<ProfilePage> {
         SizedBox(
           height: 5,
         ),
+        Material(
+          color: Colors.white,
+          child: ListView.builder(
+            padding: EdgeInsets.all(0),
+            primary: false,
+            itemCount: imgList.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              final recipe = imgList[index];
+              return ListTile(
+                  contentPadding: EdgeInsets.all(10),
+                  leading: Container(
+                    height: 60,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                    ),
+                  ),
+                  title: Text(
+                    "Chicken Soup",
+                  ),
+                  trailing: CupertinoButton(
+                    padding: EdgeInsets.all(0),
+                    child: Icon(
+                      CupertinoIcons.heart_solid,
+                      color: CupertinoColors.systemRed,
+                    ),
+                    onPressed: () {},
+                  ));
+            },
+          ),
+        ),
       ],
     );
   }
@@ -313,48 +344,87 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      child: RefreshIndicator(
-        displacement: 150,
-        onRefresh: _loadRecipes,
-        child: CustomScrollView(
-          slivers: <Widget>[
-            CupertinoSliverNavigationBar(
-              backgroundColor: _mainColor,
-              largeTitle: Text(
-                _username == null ? "" : _getUsername(),
-                style: TextStyle(
-                  color: CupertinoColors.white,
-                ),
-              ),
-              trailing: CupertinoButton(
-                padding: EdgeInsets.all(0),
-                child: Icon(
-                  CupertinoIcons.settings,
-                  color: CupertinoColors.black,
-                  size: 30,
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(
-                      builder: (context) => SettingsPage(),
-                    ),
-                  );
-                },
+      child: CustomScrollView(
+        slivers: <Widget>[
+          CupertinoSliverNavigationBar(
+            backgroundColor: _mainColor,
+            largeTitle: Text(
+              _username == null ? "" : _getUsername(),
+              style: TextStyle(
+                color: CupertinoColors.white,
               ),
             ),
-            SliverFillRemaining(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            trailing: CupertinoButton(
+              padding: EdgeInsets.all(0),
+              child: Icon(
+                CupertinoIcons.settings,
+                color: CupertinoColors.black,
+                size: 30,
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  CupertinoPageRoute(
+                    builder: (context) => SettingsPage(),
+                  ),
+                );
+              },
+            ),
+          ),
+          SliverFillRemaining(
+            child: SafeArea(
+              top: false,
+              child: ListView(
+                padding: EdgeInsets.all(0),
+                shrinkWrap: true,
                 children: <Widget>[
+                  SizedBox(
+                    height: 30,
+                  ),
                   _summarySection(context),
                   _postsSection(context),
-                  SizedBox(height: 15),
-                  _likesSection(context)
+                  SizedBox(height: 10),
+                  _likesSection(context),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.calendar_today,
+                        color: CupertinoColors.inactiveGray,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: "Joined ",
+                              style: TextStyle(
+                                color: CupertinoColors.inactiveGray,
+                              ),
+                            ),
+                            TextSpan(
+                              text: "August 2011",
+                              style: TextStyle(
+                                color: _mainColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

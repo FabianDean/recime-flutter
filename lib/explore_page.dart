@@ -138,9 +138,11 @@ class _ExplorePageState extends State<ExplorePage> {
           direction: DismissDirection.endToStart,
           key: Key(ingredient),
           onDismissed: (direction) {
-            setState(() {
-              _ingredients.removeAt(index);
-            });
+            setState(
+              () {
+                _ingredients.removeAt(index);
+              },
+            );
           },
           child: Container(
             decoration: BoxDecoration(

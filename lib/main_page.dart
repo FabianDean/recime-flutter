@@ -21,6 +21,7 @@ class _MainPageState extends State<MainPage> {
         onWillPop: () async => false,
         child: CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
+            backgroundColor: Colors.transparent,
             activeColor: Color(0xfff79c4f),
             items: [
               BottomNavigationBarItem(
