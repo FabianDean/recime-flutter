@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Row(
             children: <Widget>[
               Icon(
-                Icons.people,
+                CupertinoIcons.heart_solid,
                 color: CupertinoColors.inactiveGray,
                 size: 30,
               ),
