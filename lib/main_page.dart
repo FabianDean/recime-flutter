@@ -21,7 +21,6 @@ class _MainPageState extends State<MainPage> {
         onWillPop: () async => false,
         child: CupertinoTabScaffold(
           tabBar: CupertinoTabBar(
-            backgroundColor: Colors.transparent,
             activeColor: Color(0xfff79c4f),
             items: [
               BottomNavigationBarItem(
@@ -41,7 +40,7 @@ class _MainPageState extends State<MainPage> {
               builder: (context) {
                 switch (index) {
                   case 0:
-                    return ProfilePage(); //HomePage();
+                    return HomePage(); //HomePage();
                     break;
                   case 1:
                     return ExplorePage();

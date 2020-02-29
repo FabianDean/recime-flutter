@@ -89,8 +89,9 @@ class _ProfilePageState extends State<ProfilePage> {
               Text(
                 "Fabian Dean",
                 style: TextStyle(
-                  color: CupertinoColors.black,
+                  color: CupertinoColors.darkBackgroundGray,
                   fontSize: 36,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -103,6 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: EdgeInsets.only(
             left: 20,
             right: 20,
+            bottom: 10,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -175,6 +177,36 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
           ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.calendar_today,
+              color: CupertinoColors.inactiveGray,
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            RichText(
+              text: TextSpan(
+                children: <TextSpan>[
+                  TextSpan(
+                    text: "Joined ",
+                    style: TextStyle(
+                      color: CupertinoColors.inactiveGray,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "August 2011",
+                    style: TextStyle(
+                      color: _mainColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -339,9 +371,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
-        SizedBox(
-          height: 5,
-        ),
         Material(
           color: Colors.white,
           child: ListView.builder(
@@ -416,41 +445,10 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             _summarySection(context),
             _postsSection(context),
-            SizedBox(height: 10),
-            _likesSection(context),
             SizedBox(
               height: 10,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(
-                  Icons.calendar_today,
-                  color: CupertinoColors.inactiveGray,
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: "Joined ",
-                        style: TextStyle(
-                          color: CupertinoColors.inactiveGray,
-                        ),
-                      ),
-                      TextSpan(
-                        text: "August 2011",
-                        style: TextStyle(
-                          color: _mainColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            _likesSection(context),
             SizedBox(
               height: 15,
             ),

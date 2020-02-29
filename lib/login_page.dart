@@ -15,9 +15,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
   bool _saving = false;
+  String _errorMessage;
 
   Future<void> _signInEmailAndPassword() async {
     setState(() {
@@ -28,13 +30,36 @@ class _LoginPageState extends State<LoginPage> {
         context,
         listen: false,
       );
-      await firebaseAuth.signInWithEmailAndPassword(
+      await firebaseAuth
+          .signInWithEmailAndPassword(
         email: _emailContr.text,
         password: _passwordContr.text,
+      )
+          .catchError(
+        (error) {
+          switch (error.code) {
+            case "ERROR_USER_NOT_FOUND":
+              _errorMessage = "User not found. Check email again.";
+              break;
+            case "ERROR_WRONG_PASSWORD":
+              _errorMessage = "Incorrect password.";
+              break;
+            case "ERROR_INVALID_EMAIL":
+              _errorMessage = "Your email address appears to be invalid.";
+              break;
+            case "ERROR_USER_DISABLED":
+              _errorMessage = "User with this email has been disabled.";
+              break;
+            default:
+          }
+        },
       );
+
+      if (_errorMessage != null) throw Error;
+
       Navigator.pop(context);
     } catch (e) {
-      print(e); // TODO: show dialog with error
+      print(_errorMessage != null ? _errorMessage : e);
     }
     setState(() {
       _saving = false;
@@ -120,8 +145,23 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _submitButton() {
     return CupertinoButton(
-        onPressed: () {
-          _signInEmailAndPassword();
+        onPressed: () async {
+          await _signInEmailAndPassword();
+          if (_errorMessage != null) {
+            _scaffoldKey.currentState.showSnackBar(
+              SnackBar(
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      _errorMessage,
+                    ),
+                  ],
+                ),
+              ),
+            );
+            _errorMessage = null;
+          }
         },
         child: Container(
           width: MediaQuery.of(context).size.width,
@@ -298,6 +338,7 @@ class _LoginPageState extends State<LoginPage> {
     return WillPopScope(
       onWillPop: () async => true,
       child: Scaffold(
+        key: _scaffoldKey,
         body: GestureDetector(
           onTap: () {
             FocusScope.of(context).requestFocus(new FocusNode());

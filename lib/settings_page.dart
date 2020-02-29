@@ -11,15 +11,22 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String _errorMessage;
+
   Future<void> _signOut() async {
     try {
       final firebaseAuth = Provider.of<FirebaseAuth>(
         context,
         listen: false,
       );
-      await firebaseAuth.signOut();
+      await firebaseAuth.signOut().catchError((error) {
+        _errorMessage = "Error signing out";
+      });
+
+      if (_errorMessage != null) throw Error;
     } catch (e) {
-      print(e); // TODO: show dialog with error
+      print(_errorMessage != null ? _errorMessage : e);
     }
   }
 
@@ -139,10 +146,23 @@ class _SettingsPageState extends State<SettingsPage> {
                         CupertinoDialogAction(
                           isDestructiveAction: true,
                           child: Text("Logout"),
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.of(context, rootNavigator: true)
                                 .pop("Cancel");
-                            _signOut();
+                            await _signOut();
+                            if (_errorMessage != null) {
+                              _scaffoldKey.currentState.showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text("Error signing out."),
+                                    ],
+                                  ),
+                                ),
+                              );
+                              _errorMessage = null;
+                            }
                           },
                         ),
                         CupertinoDialogAction(
@@ -167,6 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
         backgroundColor: Color(0xfff79c4f),
         leading: CupertinoButton(
