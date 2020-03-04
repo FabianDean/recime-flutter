@@ -17,11 +17,25 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final Firestore dbReference = Firestore.instance;
+  final Firestore _dbReference = Firestore.instance;
   TextEditingController _usernameContr = TextEditingController();
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
   String _errorMessage;
+  final List<String> months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
 
   bool _saving = false;
 
@@ -58,6 +72,23 @@ class _RegisterPageState extends State<RegisterPage> {
           }
         },
       );
+
+      if (_errorMessage != null) throw Error; // skip next step if error
+
+      FirebaseUser _user = await firebaseAuth.currentUser();
+      print(_user);
+      await _dbReference.collection("users").document(_user.uid).setData(
+        {
+          "username": _usernameContr.text,
+          "email": _user.email,
+          "dateJoined": (months[_user.metadata.creationTime.month - 1] +
+              " " +
+              _user.metadata.creationTime.year.toString()),
+          "likedRecipes": [],
+        },
+      ).catchError((error) {
+        _errorMessage = "Database error.";
+      });
 
       if (_errorMessage != null) throw Error;
 
@@ -170,21 +201,25 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget _submitButton(BuildContext context) {
     return CupertinoButton(
         onPressed: () async {
-          await _registerEmailAndPassword();
-          if (_errorMessage != null) {
-            _scaffoldKey.currentState.showSnackBar(
-              SnackBar(
-                content: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      _errorMessage,
-                    ),
-                  ],
+          if (_usernameContr.text != "" &&
+              _emailContr.text != "" &&
+              _passwordContr.text != "") {
+            await _registerEmailAndPassword();
+            if (_errorMessage != null) {
+              _scaffoldKey.currentState.showSnackBar(
+                SnackBar(
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        _errorMessage,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-            _errorMessage = null; // reset _errorMessage for next call
+              );
+              _errorMessage = null; // reset _errorMessage for next call
+            }
           }
         },
         child: Container(

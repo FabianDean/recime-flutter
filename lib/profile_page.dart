@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import 'settings_page.dart';
@@ -13,9 +14,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final Firestore _dbReference = Firestore.instance;
   final Color _mainColor = Color(0xfff79c4f);
-  String _username;
-  FirebaseUser _user;
+  Map<String, dynamic> _userData;
   int _postedRecipes = 0;
   List imgList = [
     'https://images.unsplash.com/photo-1502117859338-fd9daa518a9a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
@@ -28,25 +29,31 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _getUserData();
+  }
+
+  Future<void> _getUserData() async {
     try {
       final firebaseAuth = Provider.of<FirebaseAuth>(
         context,
         listen: false,
       );
       firebaseAuth.currentUser().then((user) {
-        //_username = user.displayName;
-        setState(() {
-          _user = user;
-          _username = user.uid.substring(0, 15);
+        print("user: " + user.uid);
+        _dbReference
+            .collection("users")
+            .document(user.uid)
+            .get()
+            .then((document) {
+          print(document.data);
+          setState(() {
+            _userData = document.data;
+          });
         });
       });
     } catch (error) {
       print(error);
     }
-  }
-
-  String _getUsername() {
-    return _username;
   }
 
   List<T> map<T>(List list, Function handler) {
@@ -87,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: 20,
               ),
               Text(
-                "Fabian Dean",
+                _userData != null ? _userData["username"] : "",
                 style: TextStyle(
                   color: CupertinoColors.darkBackgroundGray,
                   fontSize: 36,
@@ -198,7 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   TextSpan(
-                    text: "August 2011",
+                    text: _userData != null ? _userData["dateJoined"] : "",
                     style: TextStyle(
                       color: _mainColor,
                     ),
@@ -413,7 +420,7 @@ class _ProfilePageState extends State<ProfilePage> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: _mainColor,
         middle: Text(
-          _username == null ? "" : _getUsername(),
+          _userData != null ? _userData["username"] : "",
           style: TextStyle(
             color: CupertinoColors.white,
           ),

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, title: "Home"}) : super(key: key);
@@ -13,9 +14,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final Firestore _dbReference = Firestore.instance;
   RefreshController _refreshController = RefreshController();
-  String _username;
-  FirebaseUser _user;
+  Map<String, dynamic> _userData;
   int _currentTrending = 0;
   int _currentYourRecipes = 0;
   int _currentRecents = 0;
@@ -30,27 +31,31 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _getUserData();
+  }
+
+  Future<void> _getUserData() async {
     try {
       final firebaseAuth = Provider.of<FirebaseAuth>(
         context,
         listen: false,
       );
       firebaseAuth.currentUser().then((user) {
-        //_username = user.displayName;
-        setState(() {
-          _user = user;
-          _username = user.uid.substring(0, 15);
+        print("user: " + user.uid);
+        _dbReference
+            .collection("users")
+            .document(user.uid)
+            .get()
+            .then((document) {
+          print(document.data);
+          setState(() {
+            _userData = document.data;
+          });
         });
-        print(_username);
       });
     } catch (error) {
       print(error);
     }
-  }
-
-  String _getUsername() {
-    print(_username);
-    return _username;
   }
 
   List<T> map<T>(List list, Function handler) {
@@ -503,7 +508,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   children: <TextSpan>[
                     TextSpan(
-                      text: _getUsername(),
+                      text: _userData != null ? _userData["username"] : "",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
