@@ -41,7 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           CupertinoButton(
-            padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -58,7 +58,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: CupertinoColors.black,
           ),
           CupertinoButton(
-            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -75,7 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: CupertinoColors.black,
           ),
           CupertinoButton(
-            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -92,7 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: CupertinoColors.black,
           ),
           CupertinoButton(
-            padding: EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(bottom: 10.0, left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           CupertinoButton(
-            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -192,44 +192,45 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: Color(0xfff79c4f),
         leading: CupertinoButton(
           padding: EdgeInsets.all(0),
-          child: RichText(
-            text: TextSpan(
-              text: "Done",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.activeBlue,
-              ),
+          child: Text(
+            "Done",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        middle: RichText(
-          text: TextSpan(
-            text: "Settings",
-            style: TextStyle(
-              color: CupertinoColors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
+        middle: Text(
+          "Settings",
+          style: TextStyle(
+            color: Colors.white,
           ),
         ),
       ),
       child: SafeArea(
         child: Container(
-          padding: EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text.rich(
-                TextSpan(
-                    text: "Account",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 32,
-                    )),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  bottom: 10,
+                ),
+                child: Text.rich(
+                  TextSpan(
+                      text: "Account",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 32,
+                      )),
+                ),
               ),
               _accountSettings(context),
               SizedBox(height: 20),

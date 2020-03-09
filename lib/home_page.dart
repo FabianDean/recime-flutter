@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   final Firestore _dbReference = Firestore.instance;
   RefreshController _refreshController = RefreshController();
   Map<String, dynamic> _userData;
+  String _timeOfDayGreeting;
   int _currentTrending = 0;
   int _currentYourRecipes = 0;
   int _currentRecents = 0;
@@ -32,6 +33,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _getUserData();
+    int hour = DateTime.now().hour;
+    if (hour >= 0 && hour < 12)
+      _timeOfDayGreeting = "Good morning,";
+    else if (hour >= 12 && hour < 5)
+      _timeOfDayGreeting = "Good afternoon,";
+    else
+      _timeOfDayGreeting = "Good evening,";
   }
 
   Future<void> _getUserData() async {
@@ -40,6 +48,7 @@ class _HomePageState extends State<HomePage> {
         context,
         listen: false,
       );
+      // convert to aysyc/await syntax later
       firebaseAuth.currentUser().then((user) {
         print("user: " + user.uid);
         _dbReference
@@ -501,6 +510,19 @@ class _HomePageState extends State<HomePage> {
           slivers: <Widget>[
             CupertinoSliverNavigationBar(
               backgroundColor: Color(0xfff79c4f),
+              leading: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      _timeOfDayGreeting,
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               largeTitle: Text.rich(
                 TextSpan(
                   style: TextStyle(

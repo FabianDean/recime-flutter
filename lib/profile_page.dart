@@ -121,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Icon(
                     Icons.photo_library,
                     color: CupertinoColors.inactiveGray,
-                    size: 25,
+                    size: 22,
                   ),
                   SizedBox(
                     width: 5,
@@ -134,7 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: TextStyle(
                             color: _mainColor,
                             fontWeight: FontWeight.bold,
-                            fontSize: 22,
+                            fontSize: 18,
                           ),
                         ),
                         TextSpan(
@@ -154,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   Icon(
                     CupertinoIcons.heart_solid,
                     color: CupertinoColors.inactiveGray,
-                    size: 30,
+                    size: 22,
                   ),
                   SizedBox(
                     width: 5,
@@ -167,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: TextStyle(
                             color: _mainColor,
                             fontWeight: FontWeight.bold,
-                            fontSize: 22,
+                            fontSize: 18,
                           ),
                         ),
                         TextSpan(
@@ -202,12 +202,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     text: "Joined ",
                     style: TextStyle(
                       color: CupertinoColors.inactiveGray,
+                      fontSize: 16,
                     ),
                   ),
                   TextSpan(
                     text: _userData != null ? _userData["dateJoined"] : "",
                     style: TextStyle(
                       color: _mainColor,
+                      fontSize: 16,
                     ),
                   ),
                 ],
