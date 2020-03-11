@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import 'settings_page.dart';
@@ -14,9 +16,11 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final Firestore _dbReference = Firestore.instance;
   final Color _mainColor = Color(0xfff79c4f);
+  final StorageReference _storageRef = FirebaseStorage.instance.ref();
+  final Firestore _dbRef = Firestore.instance;
   Map<String, dynamic> _userData;
+  String _profileImageURL;
   int _postedRecipes = 0;
   List imgList = [
     'https://images.unsplash.com/photo-1502117859338-fd9daa518a9a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
@@ -39,15 +43,21 @@ class _ProfilePageState extends State<ProfilePage> {
         listen: false,
       );
       firebaseAuth.currentUser().then((user) {
-        print("user: " + user.uid);
-        _dbReference
+        _dbRef
             .collection("users")
             .document(user.uid)
             .get()
-            .then((document) {
-          print(document.data);
+            .then((document) async {
           setState(() {
             _userData = document.data;
+          });
+        });
+        _storageRef
+            .child("${user.uid}_profile.jpg")
+            .getDownloadURL()
+            .then((url) {
+          setState(() {
+            _profileImageURL = url;
           });
         });
       });
@@ -83,11 +93,33 @@ class _ProfilePageState extends State<ProfilePage> {
             children: <Widget>[
               CircleAvatar(
                 radius: 40,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
+                backgroundColor: CupertinoColors.lightBackgroundGray,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: _profileImageURL != null
+                      ? Image.network(
+                          _profileImageURL,
+                          height: 80,
+                          width: 80,
+                          fit: BoxFit.scaleDown,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                valueColor: new AlwaysStoppedAnimation<Color>(
+                                  Color(0xfff79c4f),
+                                ),
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes
+                                    : null,
+                              ),
+                            );
+                          },
+                        )
+                      : Image.asset("assets/No_Image_Available.png"),
                 ),
               ),
               SizedBox(

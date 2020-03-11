@@ -35,7 +35,6 @@ class _SettingsPageState extends State<SettingsPage> {
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: CupertinoColors.systemGroupedBackground,
-        borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -115,7 +114,6 @@ class _SettingsPageState extends State<SettingsPage> {
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: CupertinoColors.systemGroupedBackground,
-        borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

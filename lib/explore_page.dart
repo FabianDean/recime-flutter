@@ -72,23 +72,26 @@ class _ExplorePageState extends State<ExplorePage> {
         _searchDirect = true;
         _searchByIngredients = false;
       });
-      print("API_KEY: " + DotEnv().env['RAPID_API_KEY']);
-      String url =
-          "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/search?number=10&offset=0&query=$query";
-      Map<String, String> headers = {
-        "x-rapidapi-host":
-            "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
-        "x-rapidapi-key": DotEnv().env['RAPID_API_KEY'].toString(),
-      };
-      var res = await http.get(url, headers: headers);
-      if (res.statusCode == 200) {
-        var jsonResponse = convert.jsonDecode(res.body);
-        setState(() {
-          _recipes = jsonResponse['results'];
-        });
-        print('Results:\n$_recipes');
-      } else {
-        print('Request failed with status: ${res.statusCode}.');
+      try {
+        String url =
+            "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/search?number=10&offset=0&query=$query";
+        Map<String, String> headers = {
+          "x-rapidapi-host":
+              "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
+          "x-rapidapi-key": DotEnv().env['RAPID_API_KEY'].toString(),
+        };
+        var res = await http.get(url, headers: headers);
+        if (res.statusCode == 200) {
+          var jsonResponse = convert.jsonDecode(res.body);
+          setState(() {
+            _recipes = jsonResponse['results'];
+          });
+          print('Results:\n$_recipes');
+        } else {
+          print('Request failed with status: ${res.statusCode}.');
+        }
+      } catch (error) {
+        print(error);
       }
       !_bottomSheetController.isOpened ? _bottomSheetController.show() : null;
     }
@@ -102,7 +105,29 @@ class _ExplorePageState extends State<ExplorePage> {
         _searchByIngredients = true;
         _searchDirect = false;
       });
-
+      String ingredients = _ingredients.join("%2C");
+      ingredients = ingredients.replaceAll(RegExp(' +'), '');
+      try {
+        String url =
+            "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/findByIngredients?number=10&ranking=1&ignorePantry=false&ingredients=${ingredients}";
+        Map<String, String> headers = {
+          "x-rapidapi-host":
+              "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
+          "x-rapidapi-key": DotEnv().env['RAPID_API_KEY'].toString(),
+        };
+        var res = await http.get(url, headers: headers);
+        if (res.statusCode == 200) {
+          var jsonResponse = convert.jsonDecode(res.body);
+          setState(() {
+            _recipes = jsonResponse;
+          });
+          print('Results:\n$_recipes');
+        } else {
+          print('Request failed with status: ${res.statusCode}.');
+        }
+      } catch (error) {
+        print(error);
+      }
       !_bottomSheetController.isOpened ? _bottomSheetController.show() : null;
     }
   }
@@ -288,9 +313,14 @@ class _ExplorePageState extends State<ExplorePage> {
             shrinkWrap: true,
             controller: _resultsListController,
             padding: EdgeInsets.all(5),
-            itemCount: _recipes.length,
+            itemCount: _recipes != null ? _recipes.length : 0,
             itemBuilder: (context, index) {
               final recipe = _recipes[index];
+              int totalIngredientCount = 0;
+              if (!_searchDirect) {
+                totalIngredientCount = recipe["usedIngredientCount"] +
+                    recipe["missedIngredientCount"];
+              }
               var likedRecipes = _userData["likedRecipes"];
               print(likedRecipes);
               bool liked =
@@ -308,8 +338,8 @@ class _ExplorePageState extends State<ExplorePage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: Image.network(
-                          "https://spoonacular.com/recipeImages/${recipe["id"]}-90x90.jpg",
-                          //"https://imgur.com/a/8rY9NCb",  genereic Image Not Available picture
+                          "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
+                          //"https://imgur.com/a/8rY9NCb",  generic Image Not Available picture
                           height: 100,
                           width: 100,
                           fit: BoxFit.fill,
@@ -347,7 +377,9 @@ class _ExplorePageState extends State<ExplorePage> {
                               ),
                             ),
                             Text(
-                              "Ready in ${recipe["readyInMinutes"]} min | Serves ${recipe["servings"]}",
+                              _searchDirect
+                                  ? "Ready in ${recipe["readyInMinutes"]} min | Serves ${recipe["servings"]}"
+                                  : "${recipe["usedIngredientCount"].toString()} out of ${totalIngredientCount.toString()} ingredients",
                               maxLines: 2,
                               style: TextStyle(
                                 color: Color(0xfff79c4f),
