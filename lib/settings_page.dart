@@ -11,15 +11,22 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String _errorMessage;
+
   Future<void> _signOut() async {
     try {
       final firebaseAuth = Provider.of<FirebaseAuth>(
         context,
         listen: false,
       );
-      await firebaseAuth.signOut();
+      await firebaseAuth.signOut().catchError((error) {
+        _errorMessage = "Error signing out";
+      });
+
+      if (_errorMessage != null) throw Error;
     } catch (e) {
-      print(e); // TODO: show dialog with error
+      print(_errorMessage != null ? _errorMessage : e);
     }
   }
 
@@ -28,13 +35,12 @@ class _SettingsPageState extends State<SettingsPage> {
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: CupertinoColors.systemGroupedBackground,
-        borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           CupertinoButton(
-            padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -51,7 +57,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: CupertinoColors.black,
           ),
           CupertinoButton(
-            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -68,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: CupertinoColors.black,
           ),
           CupertinoButton(
-            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -85,7 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: CupertinoColors.black,
           ),
           CupertinoButton(
-            padding: EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(bottom: 10.0, left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -108,13 +114,12 @@ class _SettingsPageState extends State<SettingsPage> {
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: CupertinoColors.systemGroupedBackground,
-        borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           CupertinoButton(
-            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+            padding: EdgeInsets.only(left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -139,10 +144,23 @@ class _SettingsPageState extends State<SettingsPage> {
                         CupertinoDialogAction(
                           isDestructiveAction: true,
                           child: Text("Logout"),
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.of(context, rootNavigator: true)
                                 .pop("Cancel");
-                            _signOut();
+                            await _signOut();
+                            if (_errorMessage != null) {
+                              _scaffoldKey.currentState.showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text("Error signing out."),
+                                    ],
+                                  ),
+                                ),
+                              );
+                              _errorMessage = null;
+                            }
                           },
                         ),
                         CupertinoDialogAction(
@@ -167,48 +185,50 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
+      key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
         backgroundColor: Color(0xfff79c4f),
         leading: CupertinoButton(
           padding: EdgeInsets.all(0),
-          child: RichText(
-            text: TextSpan(
-              text: "Done",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.activeBlue,
-              ),
+          child: Text(
+            "Done",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
-        middle: RichText(
-          text: TextSpan(
-            text: "Settings",
-            style: TextStyle(
-              color: CupertinoColors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
+        middle: Text(
+          "Settings",
+          style: TextStyle(
+            color: Colors.white,
           ),
         ),
       ),
       child: SafeArea(
         child: Container(
-          padding: EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text.rich(
-                TextSpan(
-                    text: "Account",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 32,
-                    )),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: 20,
+                  left: 20,
+                  right: 20,
+                  bottom: 10,
+                ),
+                child: Text.rich(
+                  TextSpan(
+                      text: "Account",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 32,
+                      )),
+                ),
               ),
               _accountSettings(context),
               SizedBox(height: 20),

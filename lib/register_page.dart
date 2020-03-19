@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
@@ -15,9 +16,26 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final Firestore _dbReference = Firestore.instance;
   TextEditingController _usernameContr = TextEditingController();
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
+  String _errorMessage;
+  final List<String> months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ];
 
   bool _saving = false;
 
@@ -30,13 +48,53 @@ class _RegisterPageState extends State<RegisterPage> {
         context,
         listen: false,
       );
-      await firebaseAuth.createUserWithEmailAndPassword(
+      await firebaseAuth
+          .createUserWithEmailAndPassword(
         email: _emailContr.text,
         password: _passwordContr.text,
+      )
+          .catchError(
+        (error) {
+          switch (error.code) {
+            case 'ERROR_EMAIL_ALREADY_IN_USE':
+              _errorMessage = "This email is already in use.";
+              break;
+            case 'ERROR_WEAK_PASSWORD':
+              _errorMessage = "Your password is too weak.";
+              break;
+            case 'ERROR_INVALID_EMAIL':
+              _errorMessage = "Your email address appears to be invalid.";
+              break;
+            case "ERROR_USER_DISABLED":
+              _errorMessage = "User with this email has been disabled.";
+              break;
+            default:
+          }
+        },
       );
+
+      if (_errorMessage != null) throw Error; // skip next step if error
+
+      FirebaseUser _user = await firebaseAuth.currentUser();
+      print(_user);
+      await _dbReference.collection("users").document(_user.uid).setData(
+        {
+          "username": _usernameContr.text,
+          "email": _user.email,
+          "dateJoined": (months[_user.metadata.creationTime.month - 1] +
+              " " +
+              _user.metadata.creationTime.year.toString()),
+          "likedRecipes": [],
+        },
+      ).catchError((error) {
+        _errorMessage = "Database error.";
+      });
+
+      if (_errorMessage != null) throw Error;
+
       Navigator.pop(context);
     } catch (e) {
-      print(e); // TODO: show dialog with error
+      print(_errorMessage != null ? _errorMessage : e);
     }
     setState(() {
       _saving = false;
@@ -140,10 +198,29 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget _submitButton() {
+  Widget _submitButton(BuildContext context) {
     return CupertinoButton(
-        onPressed: () {
-          _registerEmailAndPassword();
+        onPressed: () async {
+          if (_usernameContr.text != "" &&
+              _emailContr.text != "" &&
+              _passwordContr.text != "") {
+            await _registerEmailAndPassword();
+            if (_errorMessage != null) {
+              _scaffoldKey.currentState.showSnackBar(
+                SnackBar(
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        _errorMessage,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+              _errorMessage = null; // reset _errorMessage for next call
+            }
+          }
         },
         child: Container(
           width: MediaQuery.of(context).size.width,
@@ -233,6 +310,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(new FocusNode());
@@ -261,7 +339,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(
                         height: 20,
                       ),
-                      _submitButton(),
+                      _submitButton(context),
                       Expanded(
                         flex: 2,
                         child: SizedBox(),

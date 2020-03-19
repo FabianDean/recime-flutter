@@ -1,7 +1,12 @@
 import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:recime_flutter/recipe_page.dart';
 import 'package:solid_bottom_sheet/solid_bottom_sheet.dart';
 
@@ -13,34 +18,87 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+  final Firestore _dbReference = Firestore.instance;
+  FirebaseUser _user;
+  Map<String, dynamic> _userData;
   GlobalKey _bottomSheetKey = GlobalKey();
   SolidController _bottomSheetController = SolidController();
   ScrollController _ingredientListController = ScrollController();
   ScrollController _resultsListController = ScrollController();
   TextEditingController _controller = TextEditingController();
   TextEditingController _ingredientController = TextEditingController();
-  var _ingredients = ['apple', 'orange', 'banana'];
+  var _ingredients = [];
+  var _recipes;
   bool _searchDirect = false;
   bool _searchByIngredients = false;
 
-  void _searchDirectFunction(BuildContext context) {
-    if (_controller.text.trim() != "") {
+  @override
+  void initState() {
+    super.initState();
+    _getUserData();
+  }
+
+  Future<void> _getUserData() async {
+    try {
+      final firebaseAuth = Provider.of<FirebaseAuth>(
+        context,
+        listen: false,
+      );
+      firebaseAuth.currentUser().then((usr) {
+        _user = usr;
+        _dbReference
+            .collection("users")
+            .document(usr.uid)
+            .get()
+            .then((document) {
+          setState(() {
+            _userData = document.data;
+          });
+        });
+      });
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<void> _searchDirectFunction(BuildContext context) async {
+    String query = _controller.text.trim();
+    if (query != "") {
       FocusScope.of(context)
           .requestFocus(new FocusNode()); // hide soft keyboard
       setState(() {
         _searchDirect = true;
         _searchByIngredients = false;
       });
-      Future.delayed(
-          Duration(
-            milliseconds: 500,
-          ), () {
-        !_bottomSheetController.isOpened ? _bottomSheetController.show() : null;
-      });
+      try {
+        String url =
+            "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/search?number=10&offset=0&query=$query";
+        Map<String, String> headers = {
+          "x-rapidapi-host":
+              "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
+          "x-rapidapi-key": DotEnv().env['RAPID_API_KEY'].toString(),
+        };
+        var res = await http.get(url, headers: headers);
+        if (res.statusCode == 200) {
+          var jsonResponse = convert.jsonDecode(res.body);
+          setState(() {
+            _recipes = jsonResponse['results'];
+          });
+          await Future.delayed(Duration(milliseconds: 200), () {
+            !_bottomSheetController.isOpened
+                ? _bottomSheetController.show()
+                : null;
+          });
+        } else {
+          print('Request failed with status: ${res.statusCode}.');
+        }
+      } catch (error) {
+        print(error);
+      }
     }
   }
 
-  void _searchByIngredientsFunction(BuildContext context) {
+  void _searchByIngredientsFunction(BuildContext context) async {
     if (_ingredients.length > 0) {
       FocusScope.of(context)
           .requestFocus(new FocusNode()); // hide soft keyboard
@@ -48,12 +106,33 @@ class _ExplorePageState extends State<ExplorePage> {
         _searchByIngredients = true;
         _searchDirect = false;
       });
-      Future.delayed(
-          Duration(
-            milliseconds: 500,
-          ), () {
-        !_bottomSheetController.isOpened ? _bottomSheetController.show() : null;
-      });
+      String ingredients = _ingredients.join("%2C");
+      ingredients = ingredients.replaceAll(RegExp(' +'), '');
+      try {
+        String url =
+            "https://spoonacular-recipe-food-nutrition-v1.p.rapidapi.com/recipes/findByIngredients?number=10&ranking=1&ignorePantry=false&ingredients=${ingredients}";
+        Map<String, String> headers = {
+          "x-rapidapi-host":
+              "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
+          "x-rapidapi-key": DotEnv().env['RAPID_API_KEY'].toString(),
+        };
+        var res = await http.get(url, headers: headers);
+        if (res.statusCode == 200) {
+          var jsonResponse = convert.jsonDecode(res.body);
+          setState(() {
+            _recipes = jsonResponse;
+          });
+          await Future.delayed(Duration(milliseconds: 200), () {
+            !_bottomSheetController.isOpened
+                ? _bottomSheetController.show()
+                : null;
+          });
+        } else {
+          print('Request failed with status: ${res.statusCode}.');
+        }
+      } catch (error) {
+        print(error);
+      }
     }
   }
 
@@ -97,8 +176,8 @@ class _ExplorePageState extends State<ExplorePage> {
                   _bottomSheetController.hide();
                 }
               },
-              onSubmitted: (value) {
-                _searchDirectFunction(context);
+              onSubmitted: (value) async {
+                await _searchDirectFunction(context);
               },
             ),
           ),
@@ -230,79 +309,101 @@ class _ExplorePageState extends State<ExplorePage> {
   Widget _resultsList(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      child: ListView.separated(
-        shrinkWrap: true,
-        controller: _resultsListController,
-        padding: EdgeInsets.all(5),
-        itemCount: _ingredients.length,
-        itemBuilder: (context, index) {
-          final ingredient = _ingredients[index];
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              //color: CupertinoColors.lightBackgroundGray,
-            ),
-            child: ListTile(
-              contentPadding: EdgeInsets.all(0),
-              title: Row(
-                children: <Widget>[
-                  Container(
-                    height: 80,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      child: StreamBuilder(
+        stream: Firestore.instance.collection('users').snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) return Text("Loading...");
+          return ListView.separated(
+            shrinkWrap: true,
+            controller: _resultsListController,
+            padding: EdgeInsets.all(5),
+            itemCount: _recipes != null ? _recipes.length : 0,
+            itemBuilder: (context, index) {
+              final recipe = _recipes[index];
+              int totalIngredientCount = 0;
+              if (!_searchDirect) {
+                totalIngredientCount = recipe["usedIngredientCount"] +
+                    recipe["missedIngredientCount"];
+              }
+              return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  //color: CupertinoColors.lightBackgroundGray,
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(0),
+                  title: Row(
                     children: <Widget>[
-                      Text(
-                        ingredient,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.fill,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                valueColor: new AlwaysStoppedAnimation<Color>(
+                                  Color(0xfff79c4f),
+                                ),
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes
+                                    : null,
+                              ),
+                            );
+                          },
                         ),
                       ),
-                      Text(
-                        ingredient,
-                        maxLines: 2,
-                        style: TextStyle(
-                          color: Color(0xfff79c4f),
-                          fontSize: 14,
-                          fontStyle: FontStyle.italic,
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              recipe["title"],
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              _searchDirect
+                                  ? "Ready in ${recipe["readyInMinutes"]} min | Serves ${recipe["servings"]}"
+                                  : "${recipe["usedIngredientCount"].toString()} out of ${totalIngredientCount.toString()} ingredients",
+                              maxLines: 2,
+                              style: TextStyle(
+                                color: Color(0xfff79c4f),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-              trailing: CupertinoButton(
-                color: Colors.transparent,
-                padding: EdgeInsets.all(0),
-                child: Icon(
-                  CupertinoIcons.heart,
-                  color: CupertinoColors.systemRed,
-                  size: 30,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (context) => RecipePage(
+                            recipeID: _recipes[index]["id"].toString()),
+                      ),
+                    );
+                  },
                 ),
-                onPressed: () {},
-              ),
-              onTap: () {
-                Navigator.of(context).push(
-                  CupertinoPageRoute(
-                    builder: (context) => RecipePage(),
-                  ),
-                );
-              },
-            ),
+              );
+            },
+            separatorBuilder: (context, index) {
+              return Divider();
+            },
           );
-        },
-        separatorBuilder: (context, index) {
-          return Divider();
         },
       ),
     );
