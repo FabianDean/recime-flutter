@@ -19,7 +19,7 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   final Firestore _dbReference = Firestore.instance;
-  FirebaseUser user;
+  FirebaseUser _user;
   Map<String, dynamic> _userData;
   GlobalKey _bottomSheetKey = GlobalKey();
   SolidController _bottomSheetController = SolidController();
@@ -45,14 +45,12 @@ class _ExplorePageState extends State<ExplorePage> {
         listen: false,
       );
       firebaseAuth.currentUser().then((usr) {
-        user = usr;
-        print("user: " + usr.uid);
+        _user = usr;
         _dbReference
             .collection("users")
             .document(usr.uid)
             .get()
             .then((document) {
-          print(document.data);
           setState(() {
             _userData = document.data;
           });
@@ -86,14 +84,17 @@ class _ExplorePageState extends State<ExplorePage> {
           setState(() {
             _recipes = jsonResponse['results'];
           });
-          print('Results:\n$_recipes');
+          await Future.delayed(Duration(milliseconds: 200), () {
+            !_bottomSheetController.isOpened
+                ? _bottomSheetController.show()
+                : null;
+          });
         } else {
           print('Request failed with status: ${res.statusCode}.');
         }
       } catch (error) {
         print(error);
       }
-      !_bottomSheetController.isOpened ? _bottomSheetController.show() : null;
     }
   }
 
@@ -121,14 +122,17 @@ class _ExplorePageState extends State<ExplorePage> {
           setState(() {
             _recipes = jsonResponse;
           });
-          print('Results:\n$_recipes');
+          await Future.delayed(Duration(milliseconds: 200), () {
+            !_bottomSheetController.isOpened
+                ? _bottomSheetController.show()
+                : null;
+          });
         } else {
           print('Request failed with status: ${res.statusCode}.');
         }
       } catch (error) {
         print(error);
       }
-      !_bottomSheetController.isOpened ? _bottomSheetController.show() : null;
     }
   }
 
@@ -321,11 +325,6 @@ class _ExplorePageState extends State<ExplorePage> {
                 totalIngredientCount = recipe["usedIngredientCount"] +
                     recipe["missedIngredientCount"];
               }
-              var likedRecipes = _userData["likedRecipes"];
-              print(likedRecipes);
-              bool liked =
-                  likedRecipes.contains(recipe); // if true render solid heart
-              print("liked: " + liked.toString());
               return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
@@ -339,7 +338,6 @@ class _ExplorePageState extends State<ExplorePage> {
                         borderRadius: BorderRadius.circular(10),
                         child: Image.network(
                           "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
-                          //"https://imgur.com/a/8rY9NCb",  generic Image Not Available picture
                           height: 100,
                           width: 100,
                           fit: BoxFit.fill,
@@ -391,44 +389,11 @@ class _ExplorePageState extends State<ExplorePage> {
                       ),
                     ],
                   ),
-                  trailing: CupertinoButton(
-                    color: Colors.transparent,
-                    padding: EdgeInsets.all(0),
-                    child: Icon(
-                      liked ? CupertinoIcons.heart_solid : CupertinoIcons.heart,
-                      color: CupertinoColors.systemRed,
-                      size: 30,
-                    ),
-                    onPressed: () async {
-                      if (liked) {
-                        Firestore.instance
-                            .collection('users')
-                            .document(user.uid)
-                            .updateData({
-                          'likedRecipes': FieldValue.arrayRemove([recipe])
-                        }).then((value) {
-                          setState(() {
-                            liked = false;
-                          });
-                        });
-                      } else {
-                        Firestore.instance
-                            .collection('users')
-                            .document(user.uid)
-                            .updateData({
-                          'likedRecipes': FieldValue.arrayUnion([recipe])
-                        }).then((value) {
-                          setState(() {
-                            liked = true;
-                          });
-                        });
-                      }
-                    },
-                  ),
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (context) => RecipePage(),
+                        builder: (context) => RecipePage(
+                            recipeID: _recipes[index]["id"].toString()),
                       ),
                     );
                   },

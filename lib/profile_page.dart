@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'widgets/carousel.dart';
 import 'package:provider/provider.dart';
 import 'settings_page.dart';
 
@@ -22,6 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic> _userData;
   String _profileImageURL;
   int _postedRecipes = 0;
+  RefreshController _refreshController = RefreshController();
   List imgList = [
     'https://images.unsplash.com/photo-1502117859338-fd9daa518a9a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
     'https://images.unsplash.com/photo-1554321586-92083ba0a115?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
@@ -64,14 +66,6 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (error) {
       print(error);
     }
-  }
-
-  List<T> map<T>(List list, Function handler) {
-    List<T> result = [];
-    for (var i = 0; i < list.length; i++) {
-      result.add(handler(i, list[i]));
-    }
-    return result;
   }
 
   Future<void> _loadRecipes() async {
@@ -195,7 +189,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     text: TextSpan(
                       children: <TextSpan>[
                         TextSpan(
-                          text: "26",
+                          text: _userData != null
+                              ? (_userData["likedRecipes"]).length.toString()
+                              : "",
                           style: TextStyle(
                             color: _mainColor,
                             fontWeight: FontWeight.bold,
@@ -203,7 +199,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         TextSpan(
-                          text: " likes".toUpperCase(),
+                          text: (_userData != null &&
+                                  (_userData["likedRecipes"]).length < 2)
+                              ? " like".toUpperCase()
+                              : " likes".toUpperCase(),
                           style: TextStyle(
                             color: CupertinoColors.inactiveGray,
                             fontSize: 16,
@@ -275,119 +274,9 @@ class _ProfilePageState extends State<ProfilePage> {
         SizedBox(
           height: 5,
         ),
-        CarouselSlider(
-          viewportFraction: 0.8,
-          enlargeCenterPage: true,
-          onPageChanged: (index) {
-            setState(() {
-              _postedRecipes = index;
-            });
-          },
-          items: imgList.map((imgUrl) {
-            return Builder(
-              builder: (BuildContext context) {
-                return Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(horizontal: 10.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: CupertinoColors.extraLightBackgroundGray,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      imgUrl,
-                      fit: BoxFit.fill,
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent loadingProgress) {
-                        if (loadingProgress == null)
-                          return Stack(
-                            fit: StackFit.expand,
-                            children: <Widget>[
-                              child,
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Container(
-                                  padding: EdgeInsets.only(
-                                    top: 10,
-                                    bottom: 10,
-                                    left: 10,
-                                    right: 10,
-                                  ),
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: BoxDecoration(
-                                    color: CupertinoColors
-                                        .extraLightBackgroundGray,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Expanded(
-                                        child: Text(
-                                          "Gluten-free Vegan Spaghetti Squash"
-                                                      .length >
-                                                  20
-                                              ? "Gluten-free Vegan Spaghetti Squash"
-                                                      .substring(0, 20) +
-                                                  "..."
-                                              : "Gluten-free Vegan Spaghetti Squash",
-                                          overflow: TextOverflow.fade,
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                            color: CupertinoColors.black,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                      Icon(
-                                        CupertinoIcons.heart,
-                                        color: CupertinoColors.systemRed,
-                                        size: 30,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        return Center(
-                          child: CircularProgressIndicator(
-                            valueColor: new AlwaysStoppedAnimation<Color>(
-                              _mainColor,
-                            ),
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            );
-          }).toList(),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: map<Widget>(
-            imgList,
-            (index, url) {
-              return Container(
-                width: 10.0,
-                height: 10.0,
-                margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _postedRecipes == index
-                      ? _mainColor
-                      : CupertinoColors.lightBackgroundGray,
-                ),
-              );
-            },
-          ),
+        Carousel(
+          context: context,
+          list: imgList,
         ),
       ],
     );
@@ -417,21 +306,38 @@ class _ProfilePageState extends State<ProfilePage> {
           child: ListView.builder(
             padding: EdgeInsets.all(0),
             primary: false,
-            itemCount: imgList.length,
+            itemCount: _userData != null ? _userData["likedRecipes"].length : 0,
             shrinkWrap: true,
             itemBuilder: (context, index) {
-              final recipe = imgList[index];
+              final recipe = _userData["likedRecipes"][index];
               return ListTile(
                   contentPadding: EdgeInsets.all(10),
-                  leading: Container(
-                    height: 60,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
+                      height: 60,
+                      width: 50,
+                      fit: BoxFit.fill,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            valueColor: new AlwaysStoppedAnimation<Color>(
+                              Color(0xfff79c4f),
+                            ),
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes
+                                : null,
+                          ),
+                        );
+                      },
                     ),
                   ),
                   title: Text(
-                    "Chicken Soup",
+                    recipe["title"],
                   ),
                   trailing: CupertinoButton(
                     padding: EdgeInsets.all(0),
@@ -477,23 +383,30 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: SafeArea(
         top: false,
-        child: ListView(
-          padding: EdgeInsets.all(0),
-          shrinkWrap: true,
-          children: <Widget>[
-            SizedBox(
-              height: 30,
-            ),
-            _summarySection(context),
-            _postsSection(context),
-            SizedBox(
-              height: 10,
-            ),
-            _likesSection(context),
-            SizedBox(
-              height: 15,
-            ),
-          ],
+        child: SmartRefresher(
+          controller: _refreshController,
+          child: ListView(
+            padding: EdgeInsets.all(0),
+            shrinkWrap: true,
+            children: <Widget>[
+              SizedBox(
+                height: 30,
+              ),
+              _summarySection(context),
+              _postsSection(context),
+              SizedBox(
+                height: 10,
+              ),
+              _likesSection(context),
+              SizedBox(
+                height: 15,
+              ),
+            ],
+          ),
+          onRefresh: () async {
+            await _getUserData();
+            _refreshController.refreshCompleted();
+          },
         ),
       ),
     );

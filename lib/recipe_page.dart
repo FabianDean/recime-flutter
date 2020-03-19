@@ -20,6 +20,7 @@ class RecipePage extends StatefulWidget {
 class _RecipePageState extends State<RecipePage> {
   final Color _mainColor = Color(0xfff79c4f);
   final Firestore _dbRef = Firestore.instance;
+  FirebaseUser _user;
   Map<String, dynamic> _userData;
   Map<String, dynamic> _recipeData;
 
@@ -39,6 +40,7 @@ class _RecipePageState extends State<RecipePage> {
         listen: false,
       );
       firebaseAuth.currentUser().then((user) {
+        _user = user;
         _dbRef
             .collection("users")
             .document(user.uid)
@@ -46,6 +48,13 @@ class _RecipePageState extends State<RecipePage> {
             .then((document) async {
           setState(() {
             _userData = document.data;
+            _liked = ((_userData["likedRecipes"]).firstWhere(
+                        (itemToCheck) =>
+                            itemToCheck["id"].toString() == widget.recipeID,
+                        orElse: () => null)) !=
+                    null
+                ? true
+                : false;
           });
         });
       });
@@ -69,6 +78,7 @@ class _RecipePageState extends State<RecipePage> {
         setState(() {
           _recipeData = jsonResponse;
         });
+        await _addToRecents();
       } else {
         print('Request failed with status: ${res.statusCode}.');
       }
@@ -77,11 +87,81 @@ class _RecipePageState extends State<RecipePage> {
     }
   }
 
-  void _likeRecipe() async {
-    return Future.delayed(Duration(milliseconds: 250), () {
-      setState(() {
-        _liked = !_liked;
+  Future<void> _addToRecents() async {
+    try {
+      final firebaseAuth = Provider.of<FirebaseAuth>(
+        context,
+        listen: false,
+      );
+      firebaseAuth.currentUser().then((user) {
+        _dbRef
+            .collection("users")
+            .document(user.uid)
+            .get()
+            .then((document) async {
+          // delete oldest recently viewed recipe if length == 10, then add newest recent
+          if ((document.data["recentRecipes"]).length == 10) {
+            var oldest = (document.data["recentRecipes"]).elementAt(0);
+            await _dbRef.collection('users').document(user.uid).updateData({
+              'recentRecipes': FieldValue.arrayRemove([oldest]),
+            });
+          }
+
+          await _dbRef.collection('users').document(user.uid).updateData({
+            'recentRecipes': FieldValue.arrayUnion(
+              [
+                {
+                  'id': _recipeData["id"].toString(),
+                  'title': _recipeData["title"],
+                  'imageURL': _recipeData["image"],
+                },
+              ],
+            )
+          });
+        });
       });
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  void _likeRecipe() async {
+    if (_liked) {
+      Firestore.instance.collection('users').document(_user.uid).updateData({
+        'likedRecipes': FieldValue.arrayRemove(
+          [
+            {
+              'id': _recipeData["id"].toString(),
+              'title': _recipeData["title"],
+              'imageURL': _recipeData["image"],
+            },
+          ],
+        )
+      }).then((value) {
+        setState(() {
+          _liked = false;
+        });
+      });
+    } else {
+      Firestore.instance.collection('users').document(_user.uid).updateData({
+        'likedRecipes': FieldValue.arrayUnion(
+          [
+            {
+              'id': _recipeData["id"].toString(),
+              'title': _recipeData["title"],
+              'imageURL': _recipeData["image"],
+            },
+          ],
+        )
+      }).then((value) {
+        setState(() {
+          _liked = true;
+        });
+      });
+    }
+
+    setState(() {
+      _liked = !_liked;
     });
   }
 
@@ -162,75 +242,51 @@ class _RecipePageState extends State<RecipePage> {
   }
 
   Widget _ingredientsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          "Ingredients",
-          style: TextStyle(
-            color: CupertinoColors.darkBackgroundGray,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.all(15),
-          alignment: Alignment.topCenter,
-          margin: EdgeInsets.only(
-            top: 5,
-            bottom: 10,
-          ),
-          height: 200,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: CupertinoColors.lightBackgroundGray,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                "Chicken broth",
-                style: TextStyle(
-                  color: CupertinoColors.darkBackgroundGray,
-                ),
-              ),
-              Text(
-                "4 cups",
-                style: TextStyle(
-                  color: _mainColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return Material(
+      borderRadius: BorderRadius.circular(10),
+      color: CupertinoColors.lightBackgroundGray,
+      child: ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: EdgeInsets.all(10),
+        itemCount: _recipeData != null
+            ? (_recipeData["extendedIngredients"]).length
+            : 0,
+        itemBuilder: (context, index) {
+          final item = _recipeData["extendedIngredients"][index];
+          return ListTile(
+            title: Text("• " + item["originalString"]),
+          );
+        },
+      ),
     );
   }
 
   Widget _directionsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          "Directions",
-          style: TextStyle(
-            color: CupertinoColors.darkBackgroundGray,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(
-            top: 5,
-            bottom: 5,
-          ),
-          height: 200,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: CupertinoColors.lightBackgroundGray,
-          ),
-        ),
-      ],
+    return Material(
+      borderRadius: BorderRadius.circular(10),
+      color: CupertinoColors.lightBackgroundGray,
+      child: ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: EdgeInsets.all(10),
+        itemCount: _recipeData != null
+            ? (_recipeData["analyzedInstructions"][0]["steps"]).length
+            : 0,
+        itemBuilder: (context, index) {
+          final item = _recipeData["analyzedInstructions"][0]["steps"][index];
+          return ListTile(
+            leading: Text(
+              (index + 1).toString(),
+              style: TextStyle(
+                fontSize: 18,
+                color: _mainColor,
+              ),
+            ),
+            title: Text(item["step"]),
+          );
+        },
+      ),
     );
   }
 
@@ -238,6 +294,7 @@ class _RecipePageState extends State<RecipePage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       child: CustomScrollView(
+        shrinkWrap: true,
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
             backgroundColor: _mainColor,
@@ -278,103 +335,121 @@ class _RecipePageState extends State<RecipePage> {
           SliverFillRemaining(
             child: SafeArea(
               top: false,
-              child: Stack(
-                overflow: Overflow.visible,
+              child: ListView(
+                padding: EdgeInsets.all(0),
+                shrinkWrap: true,
                 children: <Widget>[
-                  Stack(
-                    //fit: StackFit.loose,
-                    children: <Widget>[
-                      _recipeData != null
-                          ? Image.network(
-                              _recipeData["image"],
-                              height: 250,
-                              width: MediaQuery.of(context).size.width,
-                              fit: BoxFit.fill,
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor:
-                                        new AlwaysStoppedAnimation<Color>(
-                                      Color(0xfff79c4f),
+                  Container(
+                    child: Stack(
+                      children: <Widget>[
+                        _recipeData != null
+                            ? Image.network(
+                                _recipeData["image"],
+                                height: 250,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.fill,
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor:
+                                          new AlwaysStoppedAnimation<Color>(
+                                        Color(0xfff79c4f),
+                                      ),
+                                      value: loadingProgress
+                                                  .expectedTotalBytes !=
+                                              null
+                                          ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress.expectedTotalBytes
+                                          : null,
                                     ),
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes
-                                        : null,
-                                  ),
-                                );
-                              },
-                            )
-                          : Image.asset(
-                              "assets/No_Image_Available.png",
-                              height: 250,
-                              width: MediaQuery.of(context).size.width,
-                            ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            bottom: 15,
-                            right: 10,
-                          ),
-                          child: CupertinoButton(
-                            padding: EdgeInsets.all(0),
-                            child: Container(
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: CupertinoColors.extraLightBackgroundGray,
-                                borderRadius: BorderRadius.circular(30),
+                                  );
+                                },
+                              )
+                            : Image.asset(
+                                "assets/No_Image_Available.png",
+                                height: 250,
+                                width: MediaQuery.of(context).size.width,
                               ),
-                              child: _liked
-                                  ? Icon(
-                                      CupertinoIcons.heart_solid,
-                                      color: CupertinoColors.systemRed,
-                                      size: 26,
-                                    )
-                                  : Icon(
-                                      CupertinoIcons.heart,
-                                      color: CupertinoColors.systemRed,
-                                      size: 26,
-                                    ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              bottom: 15,
+                              right: 10,
                             ),
-                            onPressed: () {
-                              _likeRecipe();
-                            },
+                            child: CupertinoButton(
+                              padding: EdgeInsets.all(0),
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color:
+                                      CupertinoColors.extraLightBackgroundGray,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: _liked
+                                    ? Icon(
+                                        CupertinoIcons.heart_solid,
+                                        color: CupertinoColors.systemRed,
+                                        size: 26,
+                                      )
+                                    : Icon(
+                                        CupertinoIcons.heart,
+                                        color: CupertinoColors.systemRed,
+                                        size: 26,
+                                      ),
+                              ),
+                              onPressed: () {
+                                _likeRecipe();
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  Positioned(
-                    top: 240,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: 20,
+                      right: 20,
+                      bottom: 10,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        _readyInAndYieldSection(context),
+                        Text(
+                          "Ingredients",
+                          style: TextStyle(
+                            color: CupertinoColors.darkBackgroundGray,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
                         ),
-                      ),
-                      padding: EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                        bottom: 10,
-                        top: 10,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          _readyInAndYieldSection(context),
-                          _ingredientsSection(context),
-                          _directionsSection(context),
-                        ],
-                      ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        _ingredientsSection(context),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Text(
+                          "Directions",
+                          style: TextStyle(
+                            color: CupertinoColors.darkBackgroundGray,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        _directionsSection(context),
+                      ],
                     ),
                   ),
                 ],
