@@ -85,6 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
               " " +
               _user.metadata.creationTime.year.toString()),
           "likedRecipes": [],
+          "recentRecipes": [],
         },
       ).catchError((error) {
         _errorMessage = "Database error.";

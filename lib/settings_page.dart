@@ -11,6 +11,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  Color _mainColor = Color(0xfff79c4f);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _errorMessage;
 
@@ -48,7 +49,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Edit username',
                   style: TextStyle(fontSize: 18, color: CupertinoColors.black),
                 ),
-                Icon(Icons.arrow_forward_ios),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: _mainColor,
+                ),
               ],
             ),
             onPressed: () {},
@@ -65,7 +69,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Edit email',
                   style: TextStyle(fontSize: 18, color: CupertinoColors.black),
                 ),
-                Icon(Icons.arrow_forward_ios),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: _mainColor,
+                ),
               ],
             ),
             onPressed: () {},
@@ -82,7 +89,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Edit password',
                   style: TextStyle(fontSize: 18, color: CupertinoColors.black),
                 ),
-                Icon(Icons.arrow_forward_ios),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: _mainColor,
+                ),
               ],
             ),
             onPressed: () {},
@@ -99,7 +109,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   'Edit profile picture',
                   style: TextStyle(fontSize: 18, color: CupertinoColors.black),
                 ),
-                Icon(Icons.arrow_forward_ios),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: _mainColor,
+                ),
               ],
             ),
             onPressed: () {},
@@ -187,14 +200,13 @@ class _SettingsPageState extends State<SettingsPage> {
     return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: Color(0xfff79c4f),
+        backgroundColor: _mainColor,
         leading: CupertinoButton(
           padding: EdgeInsets.all(0),
           child: Text(
             "Done",
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
           ),

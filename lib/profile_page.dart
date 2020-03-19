@@ -68,12 +68,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _loadRecipes() async {
-    print("Loading recipes in ProfilePage");
-    await Future.delayed(Duration(milliseconds: 500), () {});
-    //_refreshController.refreshCompleted();
-  }
-
   Widget _summarySection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
