@@ -293,8 +293,6 @@ class _RecipePageState extends State<RecipePage> {
 
   void _share(BuildContext context) {
     final String text = "Check out this recipe I found on ReciMe!\n" +
-        _recipeData["title"] +
-        "\n" +
         _recipeData["spoonacularSourceUrl"];
     final RenderBox box = context.findRenderObject();
     Share.share(text,

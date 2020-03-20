@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:recime_flutter/recipe_page.dart';
 import 'home_page.dart';
 import 'explore_page.dart';
 import 'profile_page.dart';
-
-import 'recipe_page.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key key, title: "Home"}) : super(key: key);
