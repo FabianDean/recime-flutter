@@ -7,6 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:recime_flutter/imageSelect_page.dart';
 import 'widgets/carousel.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,7 +20,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Firestore _dbReference = Firestore.instance;
   RefreshController _refreshController = RefreshController();
-  File _image;
   Map<String, dynamic> _userData;
   Map<String, dynamic> _trendingData;
   String _timeOfDayGreeting;
@@ -68,15 +68,6 @@ class _HomePageState extends State<HomePage> {
       print(error);
     }
     _refreshController.refreshCompleted();
-  }
-
-  Future _getImage() async {
-    print("IN HERE");
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-
-    setState(() {
-      _image = image;
-    });
   }
 
   Widget _trendingSection(BuildContext context) {
@@ -201,7 +192,13 @@ class _HomePageState extends State<HomePage> {
                   color: CupertinoColors.black,
                   size: 40,
                 ),
-                onPressed: _getImage,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => ImageSelectPage(),
+                    ),
+                  );
+                },
               ),
             ),
             SliverFillRemaining(
@@ -209,15 +206,6 @@ class _HomePageState extends State<HomePage> {
                 top: false,
                 child: Column(
                   children: <Widget>[
-                    // Container(
-                    //   height: 300,
-                    //   width: 300,
-                    //   child: _image == null
-                    //       ? Text("Nothing selected")
-                    //       : Image.file(
-                    //           _image,
-                    //         ),
-                    // ),
                     Expanded(
                       child: SmartRefresher(
                         controller: _refreshController,

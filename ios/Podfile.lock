@@ -164,6 +164,8 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.3):
     - BoringSSL-GRPC/Interface (= 0.0.3)
   - BoringSSL-GRPC/Interface (0.0.3)
+  - camera (0.0.1):
+    - Flutter
   - cloud_firestore (0.0.1):
     - Firebase/Core
     - Firebase/Firestore (~> 6.0)
@@ -322,11 +324,16 @@ PODS:
     - nanopb/encode (= 0.3.9011)
   - nanopb/decode (0.3.9011)
   - nanopb/encode (0.3.9011)
+  - path_provider (0.0.1):
+    - Flutter
+  - path_provider_macos (0.0.1):
+    - Flutter
   - PromisesObjC (1.2.8)
   - share (0.5.2):
     - Flutter
 
 DEPENDENCIES:
+  - camera (from `.symlinks/plugins/camera/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Firebase/Analytics
@@ -343,6 +350,8 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_plugin_android_lifecycle (from `.symlinks/plugins/flutter_plugin_android_lifecycle/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - path_provider_macos (from `.symlinks/plugins/path_provider_macos/ios`)
   - share (from `.symlinks/plugins/share/ios`)
 
 SPEC REPOS:
@@ -373,6 +382,8 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
+  camera:
+    :path: ".symlinks/plugins/camera/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
   file_picker:
@@ -395,12 +406,17 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_plugin_android_lifecycle/ios"
   image_picker:
     :path: ".symlinks/plugins/image_picker/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
+  path_provider_macos:
+    :path: ".symlinks/plugins/path_provider_macos/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
 
 SPEC CHECKSUMS:
   abseil: 18063d773f5366ff8736a050fe035a28f635fd27
   BoringSSL-GRPC: db8764df3204ccea016e1c8dd15d9a9ad63ff318
+  camera: 38cc83ae9a5667bb5a71c7d9edaf60a91920fd4e
   cloud_firestore: 10fd4a09ebffc33efd64708106e2e7de701fe9ae
   file_picker: 408623be2125b79a4539cf703be3d4b3abe5e245
   Firebase: 497158b816d0a86fc31babbd05546fcd7e6083ff
@@ -433,6 +449,8 @@ SPEC CHECKSUMS:
   image_picker: e3eacd46b94694dde7cf2705955cece853aa1a8f
   leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
+  path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
+  path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   share: bae0a282aab4483288913fc4dc0b935d4b491f2e
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'explore_page.dart';
 import 'profile_page.dart';
+import 'imageSelect_page.dart';
 
 class MainPage extends StatefulWidget {
   MainPage({Key key, title: "Home"}) : super(key: key);
@@ -37,7 +38,7 @@ class _MainPageState extends State<MainPage> {
               builder: (context) {
                 switch (index) {
                   case 0:
-                    return HomePage(); //HomePage();
+                    return HomePage(); //ImageSelectPage();
                     break;
                   case 1:
                     return ExplorePage();
