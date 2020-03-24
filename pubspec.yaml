@@ -41,6 +41,7 @@ dependencies:
   camera: ^0.5.7+4
   path: ^1.6.4
   path_provider: ^1.6.5
+  flutter_native_image: ^0.0.5+2
 
 dev_dependencies:
   flutter_test:
