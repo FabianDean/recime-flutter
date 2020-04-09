@@ -85,6 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
               " " +
               _user.metadata.creationTime.year.toString()),
           "likedRecipes": [],
+          "recentRecipes": [],
         },
       ).catchError((error) {
         _errorMessage = "Database error.";
@@ -309,6 +310,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    Color _mainColor = Color(0xfff79c4f);
     return Scaffold(
       key: _scaffoldKey,
       body: GestureDetector(
@@ -329,8 +331,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         flex: 3,
                         child: SizedBox(),
                       ),
-                      Icon(Icons.restaurant_menu,
-                          size: 50, color: Color(0xfff79c4f)),
+                      Icon(Icons.restaurant_menu, size: 50, color: _mainColor),
                       _title(),
                       SizedBox(
                         height: 50,

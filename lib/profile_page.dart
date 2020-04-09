@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,12 +69,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _loadRecipes() async {
-    print("Loading recipes in ProfilePage");
-    await Future.delayed(Duration(milliseconds: 500), () {});
-    //_refreshController.refreshCompleted();
-  }
-
   Widget _summarySection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +114,7 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(
                 width: 20,
               ),
-              Text(
+              AutoSizeText(
                 _userData != null ? _userData["username"] : "",
                 style: TextStyle(
                   color: CupertinoColors.darkBackgroundGray,

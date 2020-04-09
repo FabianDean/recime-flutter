@@ -7,6 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:share/share.dart';
 
 class RecipePage extends StatefulWidget {
   final String recipeID;
@@ -290,6 +291,15 @@ class _RecipePageState extends State<RecipePage> {
     );
   }
 
+  void _share(BuildContext context) {
+    final String text = "Check out this recipe I found on ReciMe!\n" +
+        _recipeData["spoonacularSourceUrl"];
+    final RenderBox box = context.findRenderObject();
+    Share.share(text,
+        subject: _recipeData["title"],
+        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -318,7 +328,9 @@ class _RecipePageState extends State<RecipePage> {
                 color: CupertinoColors.black,
                 size: 30,
               ),
-              onPressed: () {},
+              onPressed: () {
+                _share(context);
+              },
             ),
             largeTitle: Padding(
               padding: EdgeInsets.only(
