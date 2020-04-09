@@ -182,14 +182,17 @@ class _ImageSelectPageState extends State<ImageSelectPage> {
                   "Continue",
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
+                  Navigator.of(context)
+                      .push(
                     CupertinoPageRoute(
                       builder: (context) => PreviewPage(
                         imagePath: path,
                       ),
                     ),
-                  );
+                  )
+                      .then((result) {
+                    Navigator.of(context).pop();
+                  });
                 },
               ),
             ],
@@ -206,15 +209,25 @@ class _ImageSelectPageState extends State<ImageSelectPage> {
     final double width = MediaQuery.of(context).size.width;
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        backgroundColor: _mainColor,
+        actionsForegroundColor: CupertinoColors.black,
         leading: CupertinoButton(
           padding: EdgeInsets.all(0),
-          child: Text("Cancel"),
+          child: Text(
+            "Cancel",
+            style: TextStyle(
+              color: CupertinoColors.black,
+            ),
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         middle: Text(
           "Photo",
+          style: TextStyle(
+            color: CupertinoColors.white,
+          ),
         ),
       ),
       child: SafeArea(
@@ -274,7 +287,7 @@ class _ImageSelectPageState extends State<ImageSelectPage> {
                               child: Icon(
                                 CupertinoIcons.circle,
                                 color: _mainColor,
-                                size: 70,
+                                size: 80,
                               ),
                               onPressed: () {
                                 _onCapturePressed(context);
