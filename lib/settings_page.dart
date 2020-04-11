@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:recime_flutter/changePassword_page.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, title: "Settings"}) : super(key: key);
@@ -41,47 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           CupertinoButton(
-            padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  'Edit username',
-                  style: TextStyle(fontSize: 18, color: CupertinoColors.black),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: _mainColor,
-                ),
-              ],
-            ),
-            onPressed: () {},
-          ),
-          Divider(
-            color: CupertinoColors.black,
-          ),
-          CupertinoButton(
-            padding: EdgeInsets.only(left: 20.0, right: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  'Edit email',
-                  style: TextStyle(fontSize: 18, color: CupertinoColors.black),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: _mainColor,
-                ),
-              ],
-            ),
-            onPressed: () {},
-          ),
-          Divider(
-            color: CupertinoColors.black,
-          ),
-          CupertinoButton(
-            padding: EdgeInsets.only(left: 20.0, right: 20.0),
+            padding: EdgeInsets.only(top: 10, left: 20.0, right: 20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -95,7 +56,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => ChangePasswordPage(),
+                ),
+              );
+            },
           ),
           Divider(
             color: CupertinoColors.black,

@@ -5,8 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'widgets/carousel.dart';
 import 'package:provider/provider.dart';
 import 'settings_page.dart';
 
@@ -23,7 +21,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final Firestore _dbRef = Firestore.instance;
   Map<String, dynamic> _userData;
   String _profileImageURL;
-  int _postedRecipes = 0;
   RefreshController _refreshController = RefreshController();
   List imgList = [
     'https://images.unsplash.com/photo-1502117859338-fd9daa518a9a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
@@ -140,39 +137,6 @@ class _ProfilePageState extends State<ProfilePage> {
               Row(
                 children: <Widget>[
                   Icon(
-                    Icons.photo_library,
-                    color: CupertinoColors.inactiveGray,
-                    size: 22,
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: "13",
-                          style: TextStyle(
-                            color: _mainColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        TextSpan(
-                          text: " posts".toUpperCase(),
-                          style: TextStyle(
-                            color: CupertinoColors.inactiveGray,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  Icon(
                     CupertinoIcons.heart_solid,
                     color: CupertinoColors.inactiveGray,
                     size: 22,
@@ -195,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         TextSpan(
                           text: (_userData != null &&
-                                  (_userData["likedRecipes"]).length < 2)
+                                  (_userData["likedRecipes"]).length == 1)
                               ? " like".toUpperCase()
                               : " likes".toUpperCase(),
                           style: TextStyle(
@@ -208,70 +172,41 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.calendar_today,
-              color: CupertinoColors.inactiveGray,
-            ),
-            SizedBox(
-              width: 5,
-            ),
-            RichText(
-              text: TextSpan(
-                children: <TextSpan>[
-                  TextSpan(
-                    text: "Joined ",
-                    style: TextStyle(
-                      color: CupertinoColors.inactiveGray,
-                      fontSize: 16,
-                    ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    Icons.calendar_today,
+                    color: CupertinoColors.inactiveGray,
                   ),
-                  TextSpan(
-                    text: _userData != null ? _userData["dateJoined"] : "",
-                    style: TextStyle(
-                      color: _mainColor,
-                      fontSize: 16,
+                  SizedBox(
+                    width: 5,
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: "Joined ",
+                          style: TextStyle(
+                            color: CupertinoColors.inactiveGray,
+                            fontSize: 16,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              _userData != null ? _userData["dateJoined"] : "",
+                          style: TextStyle(
+                            color: _mainColor,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _postsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(
-            top: 15,
-            left: 15,
-            right: 15,
-            bottom: 10,
+            ],
           ),
-          child: Text(
-            "Posts",
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        Carousel(
-          context: context,
-          list: imgList,
         ),
       ],
     );
@@ -296,55 +231,60 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
-        Material(
-          color: Colors.white,
-          child: ListView.builder(
-            padding: EdgeInsets.all(0),
-            primary: false,
-            itemCount: _userData != null ? _userData["likedRecipes"].length : 0,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              final recipe = _userData["likedRecipes"][index];
-              return ListTile(
-                  contentPadding: EdgeInsets.all(10),
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
-                      height: 60,
-                      width: 50,
-                      fit: BoxFit.fill,
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            valueColor: new AlwaysStoppedAnimation<Color>(
-                              Color(0xfff79c4f),
-                            ),
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes
-                                : null,
+        (_userData != null && _userData["likedRecipes"].length > 0)
+            ? Material(
+                color: Colors.white,
+                child: ListView.builder(
+                  padding: EdgeInsets.all(0),
+                  primary: false,
+                  itemCount: _userData["likedRecipes"].length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final recipe = _userData["likedRecipes"][index];
+                    return ListTile(
+                        contentPadding: EdgeInsets.all(10),
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
+                            height: 80,
+                            width: 70,
+                            fit: BoxFit.fill,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: new AlwaysStoppedAnimation<Color>(
+                                    _mainColor,
+                                  ),
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes
+                                      : null,
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  title: Text(
-                    recipe["title"],
-                  ),
-                  trailing: CupertinoButton(
-                    padding: EdgeInsets.all(0),
-                    child: Icon(
-                      CupertinoIcons.heart_solid,
-                      color: CupertinoColors.systemRed,
-                    ),
-                    onPressed: () {},
-                  ));
-            },
-          ),
-        ),
+                        ),
+                        title: Text(
+                          recipe["title"],
+                        ),
+                        trailing: CupertinoButton(
+                          padding: EdgeInsets.all(0),
+                          child: Icon(
+                            CupertinoIcons.heart_solid,
+                            color: CupertinoColors.systemRed,
+                          ),
+                          onPressed: () {},
+                        ));
+                  },
+                ),
+              )
+            : Padding(
+                padding: EdgeInsets.only(left: 15),
+                child: Text("Your likes will appear here!")),
       ],
     );
   }
@@ -388,10 +328,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 30,
               ),
               _summarySection(context),
-              _postsSection(context),
-              SizedBox(
-                height: 10,
-              ),
               _likesSection(context),
               SizedBox(
                 height: 15,

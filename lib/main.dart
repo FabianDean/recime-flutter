@@ -26,6 +26,10 @@ class MyApp extends StatelessWidget {
     return Provider<FirebaseAuth>(
       create: (_) => FirebaseAuth.instance,
       child: CupertinoApp(
+        // keep app in light theme
+        theme: CupertinoThemeData(
+          brightness: Brightness.light,
+        ),
         title: 'ReciMe',
         home: LandingPage(),
         routes: {
