@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -61,7 +60,7 @@ class _MainPageState extends State<MainPage> {
             builder: (context) {
               switch (index) {
                 case 0:
-                  return HomePage(); //ImageSelectPage();
+                  return HomePage();
                   break;
                 case 1:
                   return ExplorePage();

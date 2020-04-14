@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'login_page.dart';
@@ -18,10 +19,13 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final Firestore _dbReference = Firestore.instance;
+  final StorageReference _storageRef = FirebaseStorage.instance.ref();
   TextEditingController _usernameContr = TextEditingController();
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
   String _errorMessage;
+  bool _obscureText = true;
+
   final List<String> months = [
     "January",
     "February",
@@ -44,6 +48,19 @@ class _RegisterPageState extends State<RegisterPage> {
       _saving = true;
     });
     try {
+      /* Valid username
+        1) Must be between 3-20 characters
+        2) Only alphanumeric values and '_' allowed
+        3) Cannot start or end with '_'
+        4) Cannot chain more than two '_' together
+      */
+      RegExp regExp =
+          RegExp(r"^(?=.{3,20}$)(?![_])(?!.*[_]{3})[a-zA-Z0-9_]+(?<![_])$");
+      if (!regExp.hasMatch(_usernameContr.text)) {
+        _errorMessage =
+            "Invalid username.\n1) Must be 3-20 characters long\n2) Only special character allowed is '_'\n3) No more than two '_' can appear together\n4) Username must not start or end with '_'";
+        throw Error;
+      }
       final firebaseAuth = Provider.of<FirebaseAuth>(
         context,
         listen: false,
@@ -72,11 +89,9 @@ class _RegisterPageState extends State<RegisterPage> {
           }
         },
       );
-
       if (_errorMessage != null) throw Error; // skip next step if error
 
       FirebaseUser _user = await firebaseAuth.currentUser();
-      print(_user);
       await _dbReference.collection("users").document(_user.uid).setData(
         {
           "username": _usernameContr.text,
@@ -86,10 +101,13 @@ class _RegisterPageState extends State<RegisterPage> {
               _user.metadata.creationTime.year.toString()),
           "likedRecipes": [],
           "recentRecipes": [],
+          "profilePicture": "",
         },
       ).catchError((error) {
         _errorMessage = "Database error.";
       });
+
+      _storageRef.child("users/${_user.uid}");
 
       if (_errorMessage != null) throw Error;
 
@@ -137,12 +155,13 @@ class _RegisterPageState extends State<RegisterPage> {
             height: 10,
           ),
           TextField(
-              controller: _usernameContr,
-              obscureText: false,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true))
+            controller: _usernameContr,
+            obscureText: false,
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                fillColor: Color(0xfff3f3f4),
+                filled: true),
+          ),
         ],
       ),
     );
@@ -188,12 +207,34 @@ class _RegisterPageState extends State<RegisterPage> {
             height: 10,
           ),
           TextField(
-              controller: _passwordContr,
-              obscureText: true,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true))
+            controller: _passwordContr,
+            obscureText: _obscureText,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              fillColor: Color(0xfff3f3f4),
+              filled: true,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: CupertinoButton(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+              ),
+              child: Text(
+                _obscureText ? "Show" : "Hide",
+                style: TextStyle(
+                  color: CupertinoColors.secondaryLabel,
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureText = !_obscureText;
+                });
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -209,6 +250,9 @@ class _RegisterPageState extends State<RegisterPage> {
             if (_errorMessage != null) {
               _scaffoldKey.currentState.showSnackBar(
                 SnackBar(
+                  duration: Duration(
+                    seconds: 8,
+                  ),
                   content: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -228,18 +272,23 @@ class _RegisterPageState extends State<RegisterPage> {
           padding: EdgeInsets.symmetric(vertical: 15),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                    color: Colors.grey.shade200,
-                    offset: Offset(2, 4),
-                    blurRadius: 5,
-                    spreadRadius: 2)
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  offset: Offset(2, 4),
+                  blurRadius: 5,
+                  spreadRadius: 2)
+            ],
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Color(0xfffbb448),
+                Color(0xfff7892b),
               ],
-              gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+            ),
+          ),
           child: Text(
             'Register',
             style: TextStyle(fontSize: 20, color: Colors.white),
@@ -280,21 +329,15 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _title() {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-          text: 'R',
-          style: TextStyle(color: Color(0xfff79c4f), fontSize: 50),
-          children: [
-            TextSpan(
-              text: 'eci',
-              style: TextStyle(color: Color(0xfff79c4f), fontSize: 50),
-            ),
-            TextSpan(
-              text: 'Me',
-              style: TextStyle(color: Colors.black, fontSize: 50),
-            ),
-          ]),
+    return ClipRRect(
+      child: Align(
+        heightFactor: 0.4,
+        widthFactor: 0.7,
+        child: Image.asset(
+          "assets/icon/icon.png",
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 
@@ -310,8 +353,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    Color _mainColor = Color(0xfff79c4f);
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       body: GestureDetector(
         onTap: () {
@@ -328,18 +371,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Expanded(
-                        flex: 3,
+                        flex: 2,
                         child: SizedBox(),
                       ),
-                      Icon(Icons.restaurant_menu, size: 50, color: _mainColor),
                       _title(),
                       SizedBox(
-                        height: 50,
+                        height: 10,
                       ),
                       _emailPasswordWidget(),
-                      SizedBox(
-                        height: 20,
-                      ),
                       _submitButton(context),
                       Expanded(
                         flex: 2,

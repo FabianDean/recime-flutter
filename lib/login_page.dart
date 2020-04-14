@@ -15,10 +15,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final Color _mainColor = Color(0xfff79c4f);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController _emailContr = TextEditingController();
   TextEditingController _passwordContr = TextEditingController();
   bool _saving = false;
+  bool _obscureText = true;
   String _errorMessage;
 
   Future<void> _signInEmailAndPassword() async {
@@ -132,12 +134,33 @@ class _LoginPageState extends State<LoginPage> {
             height: 10,
           ),
           TextField(
-              controller: _passwordContr,
-              obscureText: true,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true))
+            controller: _passwordContr,
+            obscureText: _obscureText,
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                fillColor: Color(0xfff3f3f4),
+                filled: true),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: CupertinoButton(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+              ),
+              child: Text(
+                _obscureText ? "Show" : "Hide",
+                style: TextStyle(
+                  color: CupertinoColors.secondaryLabel,
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscureText = !_obscureText;
+                });
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -168,107 +191,26 @@ class _LoginPageState extends State<LoginPage> {
           padding: EdgeInsets.symmetric(vertical: 15),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                    color: Colors.grey.shade200,
-                    offset: Offset(2, 4),
-                    blurRadius: 5,
-                    spreadRadius: 2)
-              ],
-              gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  offset: Offset(2, 4),
+                  blurRadius: 5,
+                  spreadRadius: 2)
+            ],
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [Color(0xfffbb448), Color(0xfff7892b)],
+            ),
+          ),
           child: Container(
             height: 25,
             child: Text(
               'Login',
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
-          ),
-        ));
-  }
-
-  Widget _divider() {
-    return Container(
-      child: Row(
-        children: <Widget>[
-          SizedBox(
-            width: 20,
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                thickness: 1,
-              ),
-            ),
-          ),
-          Text('or'),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Divider(
-                thickness: 1,
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 20,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _facebookButton() {
-    return CupertinoButton(
-        padding: EdgeInsets.all(0),
-        onPressed: () {},
-        child: Container(
-          height: 55,
-          margin: EdgeInsets.symmetric(vertical: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xff1959a9),
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(5),
-                        topLeft: Radius.circular(5)),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text('f',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500)),
-                ),
-              ),
-              Expanded(
-                flex: 5,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xff2872ba),
-                    borderRadius: BorderRadius.only(
-                        bottomRight: Radius.circular(5),
-                        topRight: Radius.circular(5)),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text('Login with Facebook',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400)),
-                ),
-              ),
-            ],
           ),
         ));
   }
@@ -295,9 +237,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Text(
               'Register',
               style: TextStyle(
-                  color: Color(0xfff79c4f),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600),
+                  color: _mainColor, fontSize: 13, fontWeight: FontWeight.w600),
             ),
           )
         ],
@@ -306,21 +246,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _title() {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-          text: 'R',
-          style: TextStyle(color: Color(0xfff79c4f), fontSize: 50),
-          children: [
-            TextSpan(
-              text: 'eci',
-              style: TextStyle(color: Color(0xfff79c4f), fontSize: 50),
-            ),
-            TextSpan(
-              text: 'Me',
-              style: TextStyle(color: Colors.black, fontSize: 50),
-            ),
-          ]),
+    return ClipRRect(
+      child: Align(
+        heightFactor: 0.4,
+        widthFactor: 0.7,
+        child: Image.asset(
+          "assets/icon/icon.png",
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 
@@ -338,6 +272,7 @@ class _LoginPageState extends State<LoginPage> {
     return WillPopScope(
       onWillPop: () async => true,
       child: Scaffold(
+        backgroundColor: Colors.white,
         key: _scaffoldKey,
         body: GestureDetector(
           onTap: () {
@@ -359,26 +294,70 @@ class _LoginPageState extends State<LoginPage> {
                             flex: 3,
                             child: SizedBox(),
                           ),
-                          Icon(Icons.restaurant_menu,
-                              size: 50, color: Color(0xfff79c4f)),
                           _title(),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           _emailPasswordWidget(),
                           SizedBox(
-                            height: 20,
+                            height: 10,
                           ),
                           _submitButton(),
                           Container(
                             padding: EdgeInsets.symmetric(vertical: 10),
                             alignment: Alignment.center,
-                            child: Text('Forgot Password?',
+                            child: CupertinoButton(
+                              child: Text(
+                                'Forgot Password?',
                                 style: TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.w500)),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: CupertinoColors.black,
+                                ),
+                              ),
+                              onPressed: () async {
+                                try {
+                                  final firebaseAuth =
+                                      Provider.of<FirebaseAuth>(
+                                    context,
+                                    listen: false,
+                                  );
+                                  await firebaseAuth.sendPasswordResetEmail(
+                                    email: _emailContr.text,
+                                  );
+                                  // on success
+                                  _scaffoldKey.currentState.showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Text(
+                                              "Check your email to reset password"),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } catch (error) {
+                                  _scaffoldKey.currentState.showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Text(
+                                            error.code == "ERROR_USER_NOT_FOUND"
+                                                ? "No user found with that email"
+                                                : "Invalid email",
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
-                          _divider(),
-                          _facebookButton(),
                           Expanded(
                             flex: 2,
                             child: SizedBox(),

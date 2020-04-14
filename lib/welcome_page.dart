@@ -64,21 +64,16 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   Widget _title() {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-          text: 'R',
-          style: TextStyle(color: Colors.white, fontSize: 50),
-          children: [
-            TextSpan(
-              text: 'eci',
-              style: TextStyle(color: Colors.white, fontSize: 50),
-            ),
-            TextSpan(
-              text: 'Me',
-              style: TextStyle(color: Colors.black, fontSize: 50),
-            ),
-          ]),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(200),
+      child: Align(
+        heightFactor: 0.8,
+        widthFactor: 0.8,
+        child: Image.asset(
+          "assets/icon/icon.png",
+          fit: BoxFit.fill,
+        ),
+      ),
     );
   }
 
@@ -110,14 +105,9 @@ class _WelcomePageState extends State<WelcomePage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Icon(
-                      Icons.restaurant_menu,
-                      size: 50,
-                      color: Colors.white,
-                    ),
                     _title(),
                     SizedBox(
-                      height: 80,
+                      height: 60,
                     ),
                     _submitButton(),
                     SizedBox(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -73,9 +75,9 @@ class _RecipePageState extends State<RecipePage> {
             "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com",
         "x-rapidapi-key": DotEnv().env['RAPID_API_KEY'].toString(),
       };
-      var res = await http.get(url, headers: headers);
+      var res = await http.get(Uri.parse(url), headers: headers);
       if (res.statusCode == 200) {
-        var jsonResponse = convert.jsonDecode(res.body);
+        var jsonResponse = convert.jsonDecode(utf8.decode(res.bodyBytes));
         setState(() {
           _recipeData = jsonResponse;
         });
@@ -256,7 +258,7 @@ class _RecipePageState extends State<RecipePage> {
         itemBuilder: (context, index) {
           final item = _recipeData["extendedIngredients"][index];
           return ListTile(
-            title: Text("• " + item["originalString"]),
+            title: Text("• " + item["originalString"].toString()),
           );
         },
       ),

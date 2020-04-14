@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,8 +5,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:recime_flutter/imageSelect_page.dart';
 import 'widgets/carousel.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Color _mainColor = Color(0xfff79c4f);
   final Firestore _dbReference = Firestore.instance;
   RefreshController _refreshController = RefreshController();
   Map<String, dynamic> _userData;
@@ -168,7 +166,7 @@ class _HomePageState extends State<HomePage> {
         child: CustomScrollView(
           slivers: <Widget>[
             CupertinoSliverNavigationBar(
-              backgroundColor: Color(0xfff79c4f),
+              backgroundColor: _mainColor,
               leading: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
@@ -184,21 +182,6 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(
                   color: CupertinoColors.white,
                 ),
-              ),
-              trailing: CupertinoButton(
-                padding: EdgeInsets.all(0),
-                child: Icon(
-                  CupertinoIcons.photo_camera,
-                  color: CupertinoColors.black,
-                  size: 40,
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(
-                      builder: (context) => ImageSelectPage(),
-                    ),
-                  );
-                },
               ),
             ),
             SliverFillRemaining(
