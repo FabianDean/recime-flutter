@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:provider/provider.dart';
+import 'package:recime_flutter/recipe_page.dart';
 import 'settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -19,16 +20,10 @@ class _ProfilePageState extends State<ProfilePage> {
   final Color _mainColor = Color(0xfff79c4f);
   final StorageReference _storageRef = FirebaseStorage.instance.ref();
   final Firestore _dbRef = Firestore.instance;
+  FirebaseUser _user;
   Map<String, dynamic> _userData;
-  String _profileImageURL;
+  String _profilePictureURL;
   RefreshController _refreshController = RefreshController();
-  List imgList = [
-    'https://images.unsplash.com/photo-1502117859338-fd9daa518a9a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
-    'https://images.unsplash.com/photo-1554321586-92083ba0a115?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
-    'https://images.unsplash.com/photo-1536679545597-c2e5e1946495?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
-    'https://images.unsplash.com/photo-1543922596-b3bbaba80649?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60',
-    'https://images.unsplash.com/photo-1502943693086-33b5b1cfdf2f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=668&q=80'
-  ];
 
   @override
   void initState() {
@@ -43,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
         listen: false,
       );
       firebaseAuth.currentUser().then((user) {
+        _user = user;
         _dbRef
             .collection("users")
             .document(user.uid)
@@ -53,11 +49,14 @@ class _ProfilePageState extends State<ProfilePage> {
           });
         });
         _storageRef
-            .child("${user.uid}_profile.jpg")
+            .child("/users")
+            .child("/${user.uid}")
+            .child("/profilePicture.jpg")
             .getDownloadURL()
             .then((url) {
           setState(() {
-            _profileImageURL = url;
+            print(url);
+            _profilePictureURL = url;
           });
         });
       });
@@ -82,9 +81,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 backgroundColor: CupertinoColors.lightBackgroundGray,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: _profileImageURL != null
+                  child: _profilePictureURL != null
                       ? Image.network(
-                          _profileImageURL,
+                          _profilePictureURL,
                           height: 80,
                           width: 80,
                           fit: BoxFit.scaleDown,
@@ -242,43 +241,54 @@ class _ProfilePageState extends State<ProfilePage> {
                   itemBuilder: (context, index) {
                     final recipe = _userData["likedRecipes"][index];
                     return ListTile(
-                        contentPadding: EdgeInsets.all(10),
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.network(
-                            "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
-                            height: 80,
-                            width: 70,
-                            fit: BoxFit.fill,
-                            loadingBuilder: (BuildContext context, Widget child,
-                                ImageChunkEvent loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  valueColor: new AlwaysStoppedAnimation<Color>(
-                                    _mainColor,
-                                  ),
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes
-                                      : null,
+                      contentPadding: EdgeInsets.all(10),
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          "https://spoonacular.com/recipeImages/${recipe["id"]}-240x150.jpg",
+                          height: 80,
+                          width: 70,
+                          fit: BoxFit.fill,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                valueColor: new AlwaysStoppedAnimation<Color>(
+                                  _mainColor,
                                 ),
-                              );
-                            },
-                          ),
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes
+                                    : null,
+                              ),
+                            );
+                          },
                         ),
-                        title: Text(
-                          recipe["title"],
+                      ),
+                      title: Text(
+                        recipe["title"],
+                      ),
+                      trailing: Padding(
+                        padding: EdgeInsets.only(
+                          right: 10,
                         ),
-                        trailing: CupertinoButton(
-                          padding: EdgeInsets.all(0),
-                          child: Icon(
-                            CupertinoIcons.heart_solid,
-                            color: CupertinoColors.systemRed,
+                        child: Icon(
+                          CupertinoIcons.right_chevron,
+                          color: CupertinoColors.black,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(
+                            builder: (context) => RecipePage(
+                              recipeID: recipe["id"],
+                            ),
                           ),
-                          onPressed: () {},
-                        ));
+                        );
+                      },
+                    );
                   },
                 ),
               )

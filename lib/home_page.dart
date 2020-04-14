@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Color _mainColor = Color(0xfff79c4f);
   final Firestore _dbReference = Firestore.instance;
   RefreshController _refreshController = RefreshController();
   Map<String, dynamic> _userData;
@@ -165,7 +166,7 @@ class _HomePageState extends State<HomePage> {
         child: CustomScrollView(
           slivers: <Widget>[
             CupertinoSliverNavigationBar(
-              backgroundColor: Color(0xfff79c4f),
+              backgroundColor: _mainColor,
               leading: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[

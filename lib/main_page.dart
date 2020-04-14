@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:recime_flutter/changePassword_page.dart';
 import 'home_page.dart';
 import 'explore_page.dart';
 import 'profile_page.dart';
@@ -61,7 +60,7 @@ class _MainPageState extends State<MainPage> {
             builder: (context) {
               switch (index) {
                 case 0:
-                  return ChangePasswordPage();
+                  return HomePage();
                   break;
                 case 1:
                   return ExplorePage();

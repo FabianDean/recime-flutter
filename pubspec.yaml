@@ -42,6 +42,7 @@ dependencies:
   path: ^1.6.4
   path_provider: ^1.6.5
   flutter_native_image: ^0.0.5+2
+  image_cropper: ^1.2.1
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +69,7 @@ flutter:
     - .env
 
     - assets/No_Image_Available.png
+    - assets/icon/icon.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

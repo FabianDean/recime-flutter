@@ -1,16 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
-class ChangePasswordPage extends StatefulWidget {
-  ChangePasswordPage({Key key}) : super(key: key);
+class UpdatePasswordPage extends StatefulWidget {
+  UpdatePasswordPage({Key key}) : super(key: key);
   @override
-  _ChangePasswordPageState createState() => _ChangePasswordPageState();
+  _UpdatePasswordPageState createState() => _UpdatePasswordPageState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
+class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
   final Color _mainColor = Color(0xfff79c4f);
   final GlobalKey<FormFieldState> currKey = GlobalKey<FormFieldState>();
   final GlobalKey<FormFieldState> passKey = GlobalKey<FormFieldState>();
@@ -26,6 +26,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _currObscureText = true;
   bool _newObscureText = true;
   bool _confirmObscureText = true;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -59,11 +60,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   Future<void> _sendRequest() async {
+    setState(() {
+      _saving = true;
+    });
     try {
       await _user.updatePassword(_newPasswordController.text);
     } catch (error) {
       print(error);
     }
+    setState(() {
+      _saving = false;
+    });
   }
 
   Future<String> _validateCurrentPassword(String current) async {
@@ -71,9 +78,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: _user.email, password: current);
     } catch (error) {
-      print("ERROR CODE: " + error.code);
       if (error.code == "ERROR_WRONG_PASSWORD") {
         return "Incorrect password";
+      } else {
+        return "Error. Try again";
       }
     }
     return null;
@@ -115,7 +123,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             left: 20,
             right: 20,
           ),
-          child: Text(_currObscureText ? "Show" : "Hide"),
+          child: Text(
+            _currObscureText ? "Show" : "Hide",
+            style: TextStyle(
+              color: CupertinoColors.secondaryLabel,
+            ),
+          ),
           onPressed: () {
             setState(() {
               _currObscureText = !_currObscureText;
@@ -160,7 +173,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             left: 20,
             right: 20,
           ),
-          child: Text(_newObscureText ? "Show" : "Hide"),
+          child: Text(
+            _newObscureText ? "Show" : "Hide",
+            style: TextStyle(
+              color: CupertinoColors.secondaryLabel,
+            ),
+          ),
           onPressed: () {
             setState(() {
               _newObscureText = !_newObscureText;
@@ -199,7 +217,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             left: 20,
             right: 20,
           ),
-          child: Text(_confirmObscureText ? "Show" : "Hide"),
+          child: Text(
+            _confirmObscureText ? "Show" : "Hide",
+            style: TextStyle(
+              color: CupertinoColors.secondaryLabel,
+            ),
+          ),
           onPressed: () {
             setState(() {
               _confirmObscureText = !_confirmObscureText;
@@ -216,7 +239,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 maxWidth: 600),
             child: CupertinoButton(
               child: Container(
-                child: Text("Change password"),
+                child: Text("Update password"),
               ),
               color: _mainColor,
               onPressed: () async {
@@ -227,10 +250,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     _passwordValidator = response;
                   });
                   // check if password entered is valid
-                  if (_formKey.currentState.validate()) {
-                    //_sendRequest();
+                  if (response == null && _formKey.currentState.validate()) {
+                    await _sendRequest();
+                    Navigator.of(context).pop();
                   }
-                } catch (e) {}
+                } catch (e) {
+                  print(e);
+                }
               },
             ),
           ),
@@ -246,27 +272,30 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         backgroundColor: _mainColor,
         actionsForegroundColor: CupertinoColors.black,
         middle: Text(
-          "Change password",
+          "Update Password",
           style: TextStyle(
             color: CupertinoColors.white,
           ),
         ),
       ),
-      child: SafeArea(
-        minimum: EdgeInsets.only(
-          top: 20,
-          bottom: 20,
+      child: ModalProgressHUD(
+        child: SafeArea(
+          minimum: EdgeInsets.only(
+            top: 20,
+            bottom: 20,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Form(
+                key: _formKey,
+                autovalidate: false,
+                child: FormUI(context),
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Form(
-              key: _formKey,
-              autovalidate: false,
-              child: FormUI(context),
-            ),
-          ],
-        ),
+        inAsyncCall: _saving,
       ),
     );
   }

@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:recime_flutter/changePassword_page.dart';
+import 'package:recime_flutter/updatePassword_page.dart';
+import 'package:recime_flutter/updatePicture_page.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, title: "Settings"}) : super(key: key);
@@ -47,19 +48,22 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  'Edit password',
-                  style: TextStyle(fontSize: 18, color: CupertinoColors.black),
+                  'Update password',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: CupertinoColors.black,
+                  ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: _mainColor,
+                  color: CupertinoColors.black,
                 ),
               ],
             ),
             onPressed: () {
               Navigator.of(context).push(
                 CupertinoPageRoute(
-                  builder: (context) => ChangePasswordPage(),
+                  builder: (context) => UpdatePasswordPage(),
                 ),
               );
             },
@@ -73,16 +77,25 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  'Edit profile picture',
-                  style: TextStyle(fontSize: 18, color: CupertinoColors.black),
+                  'Update profile picture',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: CupertinoColors.black,
+                  ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: _mainColor,
+                  color: CupertinoColors.black,
                 ),
               ],
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => UpdatePicturePage(),
+                ),
+              );
+            },
           ),
         ],
       ),

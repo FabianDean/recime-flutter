@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
@@ -18,9 +19,8 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
+  Color _mainColor = Color(0xfff79c4f);
   final Firestore _dbReference = Firestore.instance;
-  FirebaseUser _user;
-  Map<String, dynamic> _userData;
   GlobalKey _bottomSheetKey = GlobalKey();
   SolidController _bottomSheetController = SolidController();
   ScrollController _ingredientListController = ScrollController();
@@ -31,6 +31,7 @@ class _ExplorePageState extends State<ExplorePage> {
   var _recipes;
   bool _searchDirect = false;
   bool _searchByIngredients = false;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -45,16 +46,7 @@ class _ExplorePageState extends State<ExplorePage> {
         listen: false,
       );
       firebaseAuth.currentUser().then((usr) {
-        _user = usr;
-        _dbReference
-            .collection("users")
-            .document(usr.uid)
-            .get()
-            .then((document) {
-          setState(() {
-            _userData = document.data;
-          });
-        });
+        _dbReference.collection("users").document(usr.uid).get();
       });
     } catch (error) {
       print(error);
@@ -62,10 +54,11 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Future<void> _searchDirectFunction(BuildContext context) async {
+    setState(() {
+      _loading = true;
+    });
     String query = _controller.text.trim();
     if (query != "") {
-      FocusScope.of(context)
-          .requestFocus(new FocusNode()); // hide soft keyboard
       setState(() {
         _searchDirect = true;
         _searchByIngredients = false;
@@ -83,12 +76,14 @@ class _ExplorePageState extends State<ExplorePage> {
           var jsonResponse = convert.jsonDecode(res.body);
           setState(() {
             _recipes = jsonResponse['results'];
+            _loading = false;
           });
-          await Future.delayed(Duration(milliseconds: 200), () {
-            !_bottomSheetController.isOpened
-                ? _bottomSheetController.show()
-                : null;
-          });
+          await Future.delayed(
+            Duration(
+              milliseconds: 150,
+            ),
+          );
+          _bottomSheetController.show();
         } else {
           print('Request failed with status: ${res.statusCode}.');
         }
@@ -98,15 +93,19 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
-  void _searchByIngredientsFunction(BuildContext context) async {
+  Future<void> _searchByIngredientsFunction(BuildContext context) async {
+    setState(() {
+      _loading = true;
+    });
     if (_ingredients.length > 0) {
-      FocusScope.of(context)
-          .requestFocus(new FocusNode()); // hide soft keyboard
       setState(() {
         _searchByIngredients = true;
         _searchDirect = false;
       });
+
       String ingredients = _ingredients.join("%2C");
+      ingredients = ingredients.replaceAll(
+          new RegExp(r"\s+\b|\b\s"), "-"); // replace white space with "-"
       ingredients = ingredients.replaceAll(RegExp(' +'), '');
       try {
         String url =
@@ -121,12 +120,14 @@ class _ExplorePageState extends State<ExplorePage> {
           var jsonResponse = convert.jsonDecode(res.body);
           setState(() {
             _recipes = jsonResponse;
+            _loading = false;
           });
-          await Future.delayed(Duration(milliseconds: 200), () {
-            !_bottomSheetController.isOpened
-                ? _bottomSheetController.show()
-                : null;
-          });
+          await Future.delayed(
+            Duration(
+              milliseconds: 150,
+            ),
+          );
+          _bottomSheetController.show();
         } else {
           print('Request failed with status: ${res.statusCode}.');
         }
@@ -137,8 +138,10 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   void _addIngredient() {
-    if (_ingredientController.text.trim() != "") {
-      _ingredients.add(_ingredientController.text.trim());
+    String ingredient = _ingredientController.text.trim();
+    if (ingredient != "") {
+      ingredient = ingredient.replaceAll(new RegExp(r"\s+\b|\b\s"), " ");
+      _ingredients.add(ingredient);
       _ingredientController.clear();
       setState(() {});
       if (_ingredients.length > 5) {
@@ -171,11 +174,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   Radius.circular(30),
                 ),
               ),
-              onTap: () {
-                if (_bottomSheetController.isOpened) {
-                  _bottomSheetController.hide();
-                }
-              },
+              onTap: () {},
               onSubmitted: (value) async {
                 await _searchDirectFunction(context);
               },
@@ -195,8 +194,8 @@ class _ExplorePageState extends State<ExplorePage> {
                 size: 26,
               ),
             ),
-            onPressed: () {
-              _searchDirectFunction(context);
+            onPressed: () async {
+              await _searchDirectFunction(context);
             },
           )
         ],
@@ -294,7 +293,7 @@ class _ExplorePageState extends State<ExplorePage> {
         padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
         decoration: BoxDecoration(
           border: Border.all(
-            color: Color(0xfff79c4f),
+            color: _mainColor,
           ),
           borderRadius: BorderRadius.circular(10),
           color: Color(0xfff3f3f4),
@@ -347,7 +346,7 @@ class _ExplorePageState extends State<ExplorePage> {
                             return Center(
                               child: CircularProgressIndicator(
                                 valueColor: new AlwaysStoppedAnimation<Color>(
-                                  Color(0xfff79c4f),
+                                  _mainColor,
                                 ),
                                 value: loadingProgress.expectedTotalBytes !=
                                         null
@@ -380,7 +379,7 @@ class _ExplorePageState extends State<ExplorePage> {
                                   : "${recipe["usedIngredientCount"].toString()} out of ${totalIngredientCount.toString()} ingredients",
                               maxLines: 2,
                               style: TextStyle(
-                                color: Color(0xfff79c4f),
+                                color: _mainColor,
                                 fontSize: 14,
                               ),
                             ),
@@ -418,278 +417,278 @@ class _ExplorePageState extends State<ExplorePage> {
     } else {
       query = "ingredients on hand";
     }
-    return query != null
-        ? Container(
-            padding: EdgeInsets.all(10),
-            color: Colors.white,
-            child: SingleChildScrollView(
-              child: new Container(
-                child: new Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: 10,
-                            bottom: 5,
-                          ),
-                          child: RichText(
-                            text: TextSpan(
-                              style: TextStyle(fontSize: 16),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: "Results for ",
-                                  style: TextStyle(
-                                      color: CupertinoColors.secondaryLabel),
-                                ),
-                                TextSpan(
-                                  text: query.toString().trim(),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xfff79c4f),
+    return ModalProgressHUD(
+      child: query != null
+          ? Container(
+              padding: EdgeInsets.all(10),
+              color: Colors.white,
+              child: SingleChildScrollView(
+                child: new Container(
+                  child: new Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: 10,
+                              bottom: 5,
+                            ),
+                            child: RichText(
+                              text: TextSpan(
+                                style: TextStyle(fontSize: 16),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: "Results for ",
+                                    style: TextStyle(
+                                        color: CupertinoColors.secondaryLabel),
                                   ),
-                                ),
-                                TextSpan(
-                                  text: ":",
-                                  style: TextStyle(
-                                      color: CupertinoColors.secondaryLabel),
-                                ),
-                              ],
+                                  TextSpan(
+                                    text: query.toString().trim(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: _mainColor,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ":",
+                                    style: TextStyle(
+                                        color: CupertinoColors.secondaryLabel),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    _resultsList(context),
-                  ],
+                        ],
+                      ),
+                      _resultsList(context),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : Container(
+              color: Colors.white,
+              child: Center(
+                child: Text(
+                  "Search to view results here!",
+                  style: Theme.of(context).textTheme.title,
                 ),
               ),
             ),
-          )
-        : Container(
-            color: Colors.white,
-            child: Center(
-              child: Text(
-                "Search to view results here!",
-                style: Theme.of(context).textTheme.title,
-              ),
-            ),
-          );
+      inAsyncCall: _loading,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: Color(0xfff79c4f),
+        backgroundColor: _mainColor,
         middle: _searchBar(context),
       ),
-      /* use GestureDetector to remove soft keyboard when tapping anywhere outside */
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context)
-              .requestFocus(new FocusNode()); // hide soft keyboard
-        },
-        child: SafeArea(
-          /* Stack allows the SolidBottomSheet to slide over the page */
-          child: Stack(
-            children: [
-              Container(
-                /* hacky solution; needs more testing; SolidBottomSheet is displayed over Add and Search buttons */
-                height: MediaQuery.of(context).size.height * 0.8 - 45,
-                padding: EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      "What's in your kitchen?",
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
+      child: SafeArea(
+        /* Stack allows the SolidBottomSheet to slide over the page */
+        child: Stack(
+          children: [
+            Container(
+              /* hacky solution; needs more testing; SolidBottomSheet is displayed over Add and Search buttons */
+              height: MediaQuery.of(context).size.height * 0.8 - 45,
+              padding: EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "What's in your kitchen?",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Expanded(
-                      child: Material(
-                        color: CupertinoColors.lightBackgroundGray,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        Text(
-                                          "Ingredients",
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                            color: CupertinoColors
-                                                .darkBackgroundGray,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Icon(
-                                          Icons.restaurant,
-                                          color: Color(0xfff79c4f),
-                                          size: 24,
-                                        ),
-                                      ],
-                                    ),
-                                    _ingredients.length > 0
-                                        ? Align(
-                                            alignment: Alignment.centerRight,
-                                            child: CupertinoButton(
-                                              padding: EdgeInsets.all(0),
-                                              child: Text("clear"),
-                                              onPressed: () {
-                                                setState(() {
-                                                  _ingredients.clear();
-                                                });
-                                              },
-                                            ),
-                                          )
-                                        : SizedBox(),
-                                  ],
-                                ),
-                              ),
-                              Divider(
-                                color: CupertinoColors.systemGrey,
-                                thickness: 1,
-                              ),
-                              Expanded(
-                                child: (_ingredients.length > 0)
-                                    ? _ingredientList(context)
-                                    : Center(
-                                        child: Text(
-                                          "Add ingredients below",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: CupertinoColors.inactiveGray,
-                                          ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: Material(
+                      color: CupertinoColors.lightBackgroundGray,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: EdgeInsets.all(15),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        "Ingredients",
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          color: CupertinoColors
+                                              .darkBackgroundGray,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Icon(
+                                        Icons.restaurant,
+                                        color: _mainColor,
+                                        size: 24,
+                                      ),
+                                    ],
+                                  ),
+                                  _ingredients.length > 0
+                                      ? Align(
+                                          alignment: Alignment.centerRight,
+                                          child: CupertinoButton(
+                                            padding: EdgeInsets.all(0),
+                                            child: Text("clear"),
+                                            onPressed: () {
+                                              setState(() {
+                                                _ingredients.clear();
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      : SizedBox(),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            Divider(
+                              color: CupertinoColors.systemGrey,
+                              thickness: 1,
+                            ),
+                            Expanded(
+                              child: (_ingredients.length > 0)
+                                  ? _ingredientList(context)
+                                  : Center(
+                                      child: Text(
+                                        "Add ingredients below",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: CupertinoColors.inactiveGray,
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    _ingredientField(context),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color(0xfff79c4f),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: Color(0xfff79c4f),
-                                width: 2,
-                              ),
-                            ),
-                            child: CupertinoButton(
-                              child: Text(
-                                "Add",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              onPressed: () {
-                                _addIngredient();
-                              },
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Container(
+                  ),
+                  _ingredientField(context),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
                           decoration: BoxDecoration(
-                            color: Color(0xfff9f9f9),
+                            color: _mainColor,
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Color(0xfff79c4f),
+                              color: _mainColor,
                               width: 2,
                             ),
-                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: CupertinoButton(
                             child: Text(
-                              "Search",
+                              "Add",
                               style: TextStyle(
-                                color: Color(0xfff79c4f),
-                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 18,
                               ),
                             ),
                             onPressed: () {
-                              _searchByIngredientsFunction(context);
+                              _addIngredient();
                             },
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SolidBottomSheet(
-                  key: _bottomSheetKey,
-                  controller: _bottomSheetController,
-                  maxHeight: MediaQuery.of(context).size.height * 0.75,
-                  headerBar: GestureDetector(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                        color: CupertinoColors.inactiveGray,
                       ),
-                      height: 45,
-                      child: Center(
-                        child: Icon(
-                          Icons.drag_handle,
-                          size: 32,
-                          color: Colors.white,
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xfff9f9f9),
+                          border: Border.all(
+                            color: _mainColor,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: CupertinoButton(
+                          child: Text(
+                            "Search",
+                            style: TextStyle(
+                              color: _mainColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onPressed: () async {
+                            await _searchByIngredientsFunction(context);
+                          },
                         ),
                       ),
-                    ),
-                    onTap: () {
-                      FocusScope.of(context).requestFocus(new FocusNode());
-                      _bottomSheetController.isOpened
-                          ? Future.delayed(
-                              Duration(milliseconds: 150),
-                              () {
-                                _bottomSheetController.hide();
-                              },
-                            )
-                          : Future.delayed(
-                              Duration(milliseconds: 150),
-                              () {
-                                _bottomSheetController.show();
-                              },
-                            );
-                    },
+                    ],
                   ),
-                  body: _bottomSheetBody(context),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SolidBottomSheet(
+                key: _bottomSheetKey,
+                controller: _bottomSheetController,
+                maxHeight: MediaQuery.of(context).size.height * 0.75,
+                headerBar: GestureDetector(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      color: CupertinoColors.inactiveGray,
+                    ),
+                    height: 45,
+                    child: Center(
+                      child: Icon(
+                        Icons.drag_handle,
+                        size: 32,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    FocusScope.of(context).requestFocus(new FocusNode());
+                    _bottomSheetController.isOpened
+                        ? Future.delayed(
+                            Duration(milliseconds: 150),
+                            () {
+                              _bottomSheetController.hide();
+                            },
+                          )
+                        : Future.delayed(
+                            Duration(milliseconds: 150),
+                            () {
+                              _bottomSheetController.show();
+                            },
+                          );
+                  },
+                ),
+                body: Container(
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                    ),
+                    child: _bottomSheetBody(context)),
+              ),
+            ),
+          ],
         ),
       ),
     );
