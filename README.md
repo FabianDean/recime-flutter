@@ -1,7 +1,7 @@
 # ReciMe
 A "what's in your fridge" mobile app to make finding the perfect recipe a whole lot easier.
 
-ReciMe keeps the focus on the recipes. Not only can you search for recipes directly, but by providing a list of ingredients you have on hand, too!
+ReciMe keeps the focus on the recipes. Not only can you search for recipes directly but by providing a list of ingredients you have on hand, too!
 
 Like recipes to keep track of your favorites. We'll save them in your profile for you, so you'll always have a way come back to them.
 
