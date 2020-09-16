@@ -16,3 +16,4 @@ Like recipes to keep track of your favorites. We'll save them in your profile fo
 ## Download
 * [Google Play](https://play.google.com/store/apps/details?id=dev.fabiandean.recime&hl=en_US)
 * App Store (coming soon)
+### Developed by Fabian Dean
