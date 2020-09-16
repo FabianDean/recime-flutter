@@ -5,7 +5,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'widgets/carousel.dart';
+import '../widgets/carousel.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, title: "Home"}) : super(key: key);

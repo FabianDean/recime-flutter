@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:recime_flutter/recipe_page.dart';
+import 'package:recime_flutter/pages/recipe_page.dart';
 import 'package:solid_bottom_sheet/solid_bottom_sheet.dart';
 
 class ExplorePage extends StatefulWidget {

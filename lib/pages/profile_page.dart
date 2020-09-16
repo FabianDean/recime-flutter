@@ -6,8 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:provider/provider.dart';
-import 'package:recime_flutter/recipe_page.dart';
-import 'settings_page.dart';
+import 'package:recime_flutter/pages/recipe_page.dart';
+import 'settings/settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key key, title: "Home"}) : super(key: key);

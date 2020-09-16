@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:recime_flutter/updatePassword_page.dart';
-import 'package:recime_flutter/updatePicture_page.dart';
+import 'package:recime_flutter/pages/settings/updatePassword_page.dart';
+import 'package:recime_flutter/pages/settings/updatePicture_page.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, title: "Settings"}) : super(key: key);
